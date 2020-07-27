@@ -1,0 +1,2088 @@
+载入js的方式：同步、异步、延迟加载
+同步：即按照载入js文件的顺序执行，阻塞页面渲染
+异步：<script src="x.js" async/async="true"></script>
+延迟：<script src="x.js" defer></script>
+
+$(function(){});//该程序是在页面仅仅加载完DOM树后即可执行，而不必非要等到加载完视频，音频，图片flash等资源
+jQuery.noConflict();//让$符号给其他库使用，eg:var jq=$.noConflict();将$符号改为jq去用jQuery
+(function($){})(jQuery);
+等价于：
+var fn = function($){....};
+fn(jQuery);
+
+
+引入方式：常用是<script src="///.js文件"></script>
+
+<body>
+    <noscript>作用是当浏览器不支持脚本的时候作为文本输出提示信息</noscript>
+</body>
+
+//该程序在页面全部加载完成后（包括图片、视频、音频等）再执行
+window.onload=function()
+{
+    //在这里执行操作
+}
+
+/--------------第3章 类型、值和变量--------------/
+基本类型：（5+1）
+			数值-Number
+			字符串-String
+			布尔值-Boolean
+			null(空)-Null,空指针对象
+			undefined-Undefined，未初始化值的时候默认值;【其中null和undefined都不可以调用任何方法】
+对象类型：
+			Object，函数，Date，正则(RegExp)，Error，数组等；特点是：[属性：值]的形式
+			
+typeof X     	undefined=>"undefined"
+             	null=>"object"
+             	数字/NaN=>"number"
+             	true/false=>"boolean"					             
+					             字符串=>"string"即：typeof("a");和typeof(new String("a"));
+					             函数=>"function"
+					             内置对象[Array,Date,RegExp,](非函数|数组|null)=>"object"
+【注意】从这里可以看出，typeof适合做基本类型的判断，不适合做引用类型判断！instanceof更适合做引用类型的判断
+【操作符】
+所有的对象都可以转换为boolean值：true，哪怕是：new Boolean(false)  也是true
+
+in           var point={x:1,y:2}   "x" in point =>true   此运算符作用是判断左侧的字符串是否是右侧对象的属性
+instanceof   判断左侧的操作数（对象）是否是右侧类的实例，如果是，返回true 否则false
+
+短路用法					就是&& ||，谁最终决定了整个值得走向，谁就会被返回
+&&           	特殊用法：短路：A && B 当A为false时(那么无论B是真还是假其最终都是false)，只计算A的值，并且返回A值，当A为真时，不论B是真是假，都返回B的值
+             	常常会这么写：(a==b) && 【另外的执行体】  等价于  if(a==b){另外的执行体}
+||           	同样，A||B||C  如果A为真，则返回A值，反之判断B是否为真，以此类推，如果AB都为假，则肯定要返回最后一个C值
+%							求余操作符  26%5===>1
+							如果操作数都是数值，执行常规的除法计算，返回除得的余数；
+							如果被除数是无穷大值而除数是有限大的数值，则结果是 NaN；
+							 如果被除数是有限大的数值而除数是零，则结果是 NaN；
+							 如果是 Infinity 被 Infinity 除，则结果是 NaN；
+							 如果被除数是有限大的数值而除数是无穷大的数值，则结果是被除数；
+							 如果被除数是零，则结果是零；
+							 如果有一个操作数不是数值，则在后台调用 Number()将其转换为数值，然后再应用上面的规则。
+== 	!=				相等，不相等；特点是它会转换类型后再比较——也叫相对相等
+=== !==				全等，不全等；特点是不会转换类型后再比较——也叫绝对相等
+Boolean?A:B		variable = boolean_expression ? 返回true_value : 返回false_value;					
+demo：
+							var x=10;x>5?"大于5":"小于5"
+							运行后为：大于5，也就是说：三目运算符是判断前面的boolean值，若为true则返回true_value值，否则为false_value值
+							"大于5"
+/----------基本类型----------/
+【Undefined，Null】
+undefined是指变量没有初始化
+null是指某个变量想定义为对象，但是是空指针状态
+null==undefined  ===>ture
+null===undefined ===>false
+
+
+【Boolean类型】
+常用的6个false假值
+undefined null 0 -0 NaN ""
+undefined 和 null基本是相等的，但是用“===”会不相等 ,undefined是全局变量，null是关键字;===是特指类型也是相等的，值也是相等的，==只是值相近似
+boolean基本类型值和new Boolean()区别
+1、typeof 基本===>"boolean" ; typeof 对象===>"object"
+2、instanceof ：基本 instanceof Boolean===>false; 对象 instanceof Boolean===>true;
+
+
+【Number数值类型】
+在js中，只有浮点数，当然我们可以定义一个整型量，或者浮点型 .3  1.2【虽然可以，但不要这样写！！！】
++ - * / %(求余运算)
+正无穷大：Infinity
+负无穷大：-Infinity  		 注意：正负无穷大是在大于最大值，小于最小值，或者被0除会出现
+NaN：非数             					注意：0/0 | 正无穷大/正无穷大 | 给负数做开方 | 或者无法将某个变量转换为数值时才会得到，
+
+                 		（1）NaN和任何数都不相等,包括自己，所以不能够用x==NaN,而是用x!=NaN；
+                 		（2）判断x是否是“非数” 可以通过isNaN(x)来判断——isNaN(isNaN)==>true；isNaN("blue")==>false因为blue无法转为数值
+                 		（3）任何和NaN进行运算的值都为：NaN，这点尤为重要，因为在“房贷计算器”中出现过很多类似错误！
+           
+Math.round(.6)          ：=>1.0   四舍五入
+Math.cell(.6)           ：=>1.0   向上求整数
+Math.floor(.6)          ：=>0.0   向下求整数
+Math.abs(-6)            ：=>6     求绝对值
+Math.random()           :生成一个大于0小于1.0的随机数
+num.toFixed(n)          :（n:0~20）四舍五入为指定小数点后的n位有效数字,eg:12.37.toFixed(1)  为12.4
+
+---3个转换---
+Number(X)               						可以使：数值，字符串，boolean，等，true-1，false-0，null-0；
+parseInt(带数字的字符串-开头必须是数值/数值)		如果传入的值是“字符串”+数值/""，===>NaN；
+parseFloat()												同上
+注意：所有的编程语言中，浮点型都无法精确表示像0.1那样的小数，比如0.3-0.2并不等于0.2-0.1
+
+
+【String类型——因为字符串的不可变，方法返回的都是新的字符串】
+注意：字符串不是对象，但是可以调用方法，原因是在调用方法时候，JavaScript会把字符串转换为new String("字符串")对象
+---我们每次创建了一个字符串并调用方法等价于以下步骤：(Boolean和Number类型也一样)最后被销毁！
+var s1=new String("lihonglei");
+var s2=s1.substring(2);
+s1=null;
+
+charAt(i)               [根据数字找字母]——返回传递给此方法的索引处的字符 eg:"lihonglei".charAt(1)=>返回了第2个字符
+indexOf(str,num)        [根据字母找数字]返回str字符串第一次出现的位置，如果没有找到返回-1,如果有num则，起始位置从num开始(num从0开始计数)
+laseIndexOf()						同indexOf，只不过从后向前查找"hello world".laseIndexOf("o");===>7
+slice(开始,结束)					截取并返回新的字符串-str.slice(start,last),[strar,last)包含开始，不包含结束
+              					若为负值：abcde—— -5 -4 -3 -2 -1，注意所有的截取都是从左到右的！所以不论负值/正直截取：(-3，-2)，左边的一定比右边小
+split(分割符，[返回数组的最大长度])   	""分隔符将会把字符串的每一个字符都拆分，并返回由字符串组成的数组，如果指定第二个参数，则会限制数组的长度
+                            	eg：var str="How are you doing today?"
+                           		document.write(str.split(" ",3))——>["How","are","you"]而第四个字符串"doing"是第四个元素，就不会被收集
+trim()												在ECM5中，增加了trim，过滤掉字符串前后的空格    " a ".trim()===>a【IE8也支持】
+replace("匹配的字符串/正则","替换的字符串")    	如果被替换的是字符串：则只替换第一个匹配的，如果是正则表达式则替换全部匹配的;返回原来字符串被替换后的字符串
+																							demo：
+																							var str="Visit Microsoft!"
+																							document.write(str.replace(/Microsoft/, "W3School"))
+																							Visit W3School!
+toUpperCase()           把小写字符变为大写字符，并返回新的字符;
+toLowerCase()           把大写字符变为小写字符，并返回新的字符;
+concat(e1,e2……)         把e1、e2添加到调用者上，并且返回新的字符串/数组，eg:"lihonglei".concat("——nice")=》lihonglei——nice（新的，不是在原来的基础上改的），[1,2].concat(4,5)=>[1,2,4,5]也是新的数组
+
+正则.test(string)     								test() 方法用于检测一个字符串是否匹配某个模式【校验input表单常用】.
+																		检测string是否匹配了前面的正则表达式，返回true/false
+
+字符串.match(要检索的字符串/正则)   	只要匹配了字符串/正则，则以数组[字符串……]形式返回
+字符串.search(要检索的字符串/正则)		和match相似，不过返回的是第一次匹配的字符串的位置值，如果没有则返回-1 
+demo：
+var text = "cat, bat, sat, fat";
+var pos = text.search(/at/);
+alert(pos); //1  cat中a的位置值
+eg:
+<script type="text/javascript">
+	var str = "Visit W3School";
+	var patt1 = new RegExp("W3School");
+	var result = patt1.test(str);
+	document.write("Result: " + result);
+</script>
+返回true
+
+eg："1 plus 2 444 equal 33".match(/^\d/g)——全局 匹配开头是数字的字符串;返回：["1"]
+    "1 plus 2 444 equal 33".match(/\d*/g);——全局 匹配“至少出现0次或者一次的数字字符串”
+    ["1", "", "", "", "", "", "", "2", "", "444", "", "", "", "", "", "", "", "33", ""]
+    "1 plus 2 444 equal 33".match(/\d+/g);
+    ["1", "2", "444", "33"]
+    
+【两个转换为字符串的方法】
+toString()			var num=5;num.toString();===>5
+String()				var kong_null=String(null);var kong_undefined=String(undefined);
+
+
+【字符串方法例子】
+var str="hello,lihonglei";
+
+        //str.charAt(index);返回指定位置的字符；
+        var x=str.charAt(4);
+        document.writeln("hello,lihonglei的第5个字符是："+x+"<br>");
+        var y=str.charAt(str.length-1);
+        document.writeln("hello,lihonglei的第最后一个字符是："+y+"<br>");
+
+
+
+        //str.slice(start,last),[strar,last)包含开始，不包含结束，而且这个方法支持负数，即从后向前数-X个字符
+        var z=str.slice(0,5);
+        var z1=str.slice(-3);
+        document.writeln("hello,lihonglei的前5个字符是："+z+",从后面数3个是："+z1+"<br>");
+
+
+
+        //str.indexOf("xxx"),返回xxx字符串第一次出现的起始位置，若没有返回-1
+        var a=str.indexOf("li");
+        document.writeln("第一次出现li字符的地方是："+a+"<br>");
+
+
+
+        //str.split("");将字符串的每一个字符都拆分（包括空格，标点等），再组成数组。str.split(",");用，分割字符串成数组,返回的数组中的字串不包括"传入的参数" 自身。；
+        var array=str.split("l");
+        document.writeln("用 ， 分割字符串得到的数组为："+array+"<br>");
+
+
+
+        //str.replace("a","b")，a被替换为b，注意如果是第一个参数是字符串，那么只会被替换第一个，后面的不会替换，若想全部替换则用正则表达式！/g表示全部
+        var b=str.replace(/l/g,"L");
+        document.writeln("用L替换l："+b+"<br>");
+        document.writeln("转换为大写"+str.toUpperCase()+"<br>");
+        document.writeln("最终的str是："+str);
+        var ss="a";
+        alert(typeof(new String("a")));//Object
+        alert(typeof(ss));//String
+        alert(ss===new String("a"));//===false，==true
+        
+ /----------Object类型----------/       
+【Date类型】
+new Date()               创建当前的日期
+new Date(某个日期)        创建某个日期
+date.getFullYear()       返回当前的年（2015）
+date.getMonth()          从0开始的月份
+date.getDate()           从1开始的天数
+date.getDay()            0代表周日，1代表周1，以此类推，6代表周6
+所有的Date对象方法
+Date()    返回当日的日期和时间。
+getDate()    从 Date 对象返回一个月中的某一天 (1 ~ 31)。
+getDay()    从 Date 对象返回一周中的某一天 (0 ~ 6)。
+getMonth()    从 Date 对象返回月份 (0 ~ 11)。
+getFullYear()    从 Date 对象以四位数字返回年份。
+getHours()    返回 Date 对象的小时 (0 ~ 23)。
+getMinutes()    返回 Date 对象的分钟 (0 ~ 59)。
+getSeconds()    返回 Date 对象的秒数 (0 ~ 59)。
+getMilliseconds()    返回 Date 对象的毫秒(0 ~ 999)。
+getTime()    返回 1970 年 1 月 1 日至今的毫秒数。
+getTimezoneOffset()    返回本地时间与格林威治标准时间 (GMT) 的分钟差。
+getUTCDate()    根据世界时从 Date 对象返回月中的一天 (1 ~ 31)。
+getUTCDay()    根据世界时从 Date 对象返回周中的一天 (0 ~ 6)。
+getUTCMonth()    根据世界时从 Date 对象返回月份 (0 ~ 11)。
+getUTCFullYear()    根据世界时从 Date 对象返回四位数的年份。
+getUTCHours()    根据世界时返回 Date 对象的小时 (0 ~ 23)。
+getUTCMinutes()    根据世界时返回 Date 对象的分钟 (0 ~ 59)。
+getUTCSeconds()    根据世界时返回 Date 对象的秒钟 (0 ~ 59)。
+getUTCMilliseconds()    根据世界时返回 Date 对象的毫秒(0 ~ 999)。
+parse()    返回1970年1月1日午夜到指定日期（字符串）的毫秒数。
+setDate()    设置 Date 对象中月的某一天 (1 ~ 31)。
+setMonth()    设置 Date 对象中月份 (0 ~ 11)。
+setFullYear()    设置 Date 对象中的年份（四位数字）。
+setHours()    设置 Date 对象中的小时 (0 ~ 23)。
+setMinutes()    设置 Date 对象中的分钟 (0 ~ 59)。
+setSeconds()    设置 Date 对象中的秒钟 (0 ~ 59)。
+setMilliseconds()    设置 Date 对象中的毫秒 (0 ~ 999)。
+setTime()    以毫秒设置 Date 对象。
+setUTCDate()    根据世界时设置 Date 对象中月份的一天 (1 ~ 31)。
+setUTCMonth()    根据世界时设置 Date 对象中的月份 (0 ~ 11)。
+setUTCFullYear()    根据世界时设置 Date 对象中的年份（四位数字）。
+setUTCHours()    根据世界时设置 Date 对象中的小时 (0 ~ 23)。
+setUTCMinutes()    根据世界时设置 Date 对象中的分钟 (0 ~ 59)。
+setUTCSeconds()    根据世界时设置 Date 对象中的秒钟 (0 ~ 59)。
+setUTCMilliseconds()    根据世界时设置 Date 对象中的毫秒 (0 ~ 999)。
+toSource()    返回该对象的源代码。
+toString()    把 Date 对象转换为字符串。
+toTimeString()    把 Date 对象的时间部分转换为字符串。
+toDateString()    把 Date 对象的日期部分转换为字符串。
+toGMTString()    请使用 toUTCString() 方法代替。
+toUTCString()    根据世界时，把 Date 对象转换为字符串。
+toLocaleString()    根据本地时间格式，把 Date 对象转换为字符串。
+toLocaleTimeString()    根据本地时间格式，把 Date 对象的时间部分转换为字符串。
+toLocaleDateString()    根据本地时间格式，把 Date 对象的日期部分转换为字符串。
+UTC()    根据世界时返回 1970 年 1 月 1 日 到指定日期的毫秒数。
+valueOf()    返回 Date 对象的原始值。
+
+
+
+/--------------第5章 语句--------------/
+
+-----------------【条件语句：if……else】----------------
+if(){
+  XX
+}
+else if(){
+  XX
+}
+……
+else{
+	some code
+}
+
+-----------------【条件语句：switch】----------------
+switch(关于n值的表达式)---表达式判断
+{
+		case 1(表达式值1):===>n为1
+			若干语句1;
+    break;
+    case 2(表达式值2):===>n为2
+			若干语句2;
+    break;
+    default:
+    最后的语句;
+    break;
+}
+var num = 25;
+switch (true) {
+	case num < 0:   ===>这里返回的是boolean值从而和switch中的值进行比较。
+		alert("Less than 0.");
+		break;
+	case num >= 0 && num <= 10:
+		alert("Between 0 and 10.");
+		break;
+	case num > 10 && num <= 20:
+		alert("Between 10 and 20.");
+		break;
+	default:
+		alert("More than 20.");
+}
+-----------------【循环语句：for】-----------------
+for(var i=0;i<=10;i++){
+	执行操作
+}
+
+-----------------【循环语句：for-in】-----------------
+【注意】这个遍历最重要就在遍历对象时候，从而枚举出对象中每个值对的值；而且对于null undefined值会报错，所以，一定要判断是否是这两个值；
+尽管EC5已经解决此问题——会终止循环,但是最好还是判断一下，保证其健壮性
+for(var key in obj){
+	console.log("value："+obj[key]);
+}
+
+-----------------【循环语句：do while】-----------------
+do-while是一种后测试循环语句
+do{
+		
+}
+while(boolean)
+demo：
+do{
+	执行操作
+	i+=2;//循环体模块
+}
+while(i<=10)
+
+-----------------【循环语句：while】-----------------
+while(判断){
+	执行操作
+	循环体模块
+}
+demo：
+var i=1;
+while(i<10){
+    i+=1;//或者i++
+}
+
+/--------------第7章 数组--------------/
+数组的某个元素的索引值 < 数组.length值
+var a=[1,2,3,4,5]    a.length=2  a此时为：[1,2] 这里是一个技巧，即快速删除数组元素
+创建数组：
+（1）var array=new Array(10);
+（2）new Array(1,2,3,4,"str"); //意味着创建了一个长度为5的数组
+（3）字面量方式：var a=[1,2,3,4,5]，其实使用这种方式并没有调用Array构造器，所以这样性能更好一些
+
+
+push(e1,e2……)          	在数组末尾添加元素，返回新长度，如果直接插入多个，则是【多个】同时放入尾部，而不是a1,a2,逐个放入；
+												同样，unshift("a","b")的时候是："a b"整体放在头部，而不是先插入a,再b成为["b","a"……]这样的顺序
+pop()                  	删除最后一个元素，返回删除的元素的值
+unshift(e1,e2……)       	在数组头部添加元素，返回新长度
+shift()                	删除第一个元素，返回删除的元素的值
+
+字符串=>数组							split(分割方式，保留数组的最大长度)
+demo:										"2:3:4:5".split(":")   		//将返回["2", "3", "4", "5"]
+												"2:3:4:5".split(":",2)   	//将返回["2", "3"]
+												"hello".split("")					//可返回 ["h", "e", "l", "l", "o"]
+
+数组=>字符串							join(连接方式|不写)      	将数组的每一个元素转换为字符串然后连接在一起；并返回拼接的字符串；不写参数默认分割用",",指定的，用指定字符分割
+demo：										[1,2,3].join()=>"1,2,3"   join(",")=>"1,2,3"
+注意：										【其实还有一种方式就是直接输出数组：默认调用toSring方法，默认会以，分割；而且如果数组中有null，undefined则会以空字符串输出】
+reverse()              	将原数组逆序排列；注意：这里是改变了原来数组，不产生新数组
+sort(函数名)							函数：fun(val1,val2){
+																	//如果返回负值 比如-1，则让val1在val2的前面排列
+																	//如果返回正值 比如1，则让val1在val2的后面排列
+																	//如果返回0    则说明两个参数相等
+															}
+															function compare(value1, value2) {
+																	if (value1.length < value2.length) {
+																		return -1;
+																	} 
+																	else if (value1.length > value2.length) {
+																		return 1;
+																	} 
+																	else {
+																		return 0;
+																	}
+															}
+															var values = ["aa","a", "ddd", "", "sssss"];
+															values.sort(compare);
+															alert(values); //["","a","aa","ddd","sssss"]
+
+slice(start,|end)      			[start,end) 截取数组，并返回新的数组,第二个参数可以不写，即从开始到最后，而且可以使负值，-1表示倒数第一个
+splice(args)   							1、删除:		splice(起始位置，要删除的个数)
+														2、插入：	splice(起始位置，要删除的个数-0，插入项-可以很多个)
+														3、替换：	splice(起始位置，要删除的个数，替换项-可以很多)
+														返回值是被删除的项组成的新数组，原来的数组也发生相应的改变
+                            eg:a[1,2,3,4,5,6,7,8]
+                            		删除：
+                               	a.splice(0,2)=>返回：[1,2] a变为[3,4,5,6,7,8]
+                               	插入：
+                               	a.splice(2,0,"a")=>返回：[] a变为[1,2,"a",3,4,5,,6,7,8];a占据了原来3所在的位置，而3及其后的元素相应则往后排
+                               	替换：
+                               	a.splice(2,2,"a")=>返回：[3,4] a变为[1,2,"a",5,6,7,8];首先删除了2号位置，且从此位置删除两项3、4，然后替换为a
+                               	
+forEach(function(value,index,数组本身){})			遍历数组,数组.forEach(回调函数)，这个回调函数可以改变原数组的值.
+																							注意：此函数无法终止（像for循环：有break/continue）除非用try语句抛出异常
+                                      				需要注意：这里可以传3个参数：数组值，下标，数组本身；但是，常常是只用第一个value
+
+由于IE没有forEach;
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(callback, thisArg) {
+        var T, k;
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+        var O = Object(this);
+        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
+        if ({}.toString.call(callback) != "[object Function]") {
+            throw new TypeError(callback + " is not a function");
+        }
+        if (thisArg) {
+            T = thisArg;
+        }
+        k = 0;
+        while (k < len) {
+            var kValue;
+            if (k in O) {
+                kValue = O[k];
+                callback.call(T, kValue, k, O);
+            }
+            k++;
+        }
+    };
+}
+
+
+map(function(value){return ……})       					对每次返回的数据放入新的数组中，并最终返回一个新的数组
+filter(function(value){return boolean})         过滤数组，value经过运算后如果返回true，则这个数组元素将放入新的数组，否则不放入（注意：此方法会过滤掉稀疏数组的缺少的元素）
+every(function(value){return boolean})          对所有元素进行判定，只有当所有元素都满足时，返回true
+some(function(value){return boolean})           同上，只不过它是“只要有一个”满足函数整体即返回true
+注意：对于上面的两个方法，every只要有一个是false则后面的就不会遍历，some则是只要有一个是true就会停止遍历
+
+indexOf(value，|起始位置可选)								var numbers = [1,2,3,4,5,4,3,2,1];
+																						alert(numbers.indexOf(4)); //3
+lastIndexOf(value,|起始位置可选)             和string类型的数据一样，判断数组中是否有某value，若有返回其位置，若无返回-1，第二个参数可选：指定查询的起始位置
+isArray()                                 	判断某对象是否是数组类型，Array.isArray(array);
+
+
+/--------------第6章 对象、类--------------/
+对象：是无序的名/值对组成的集合，它的常见用法:创建，设置，查找，删除，检测，枚举它的属性。“属性名字一定是一个字符串”：属性值是任意类型
+(1)对象中不能够存在同名的属性名
+属性的特性：可写【是否可以设置该属性值】，可枚举【是否可以通过for/in循环遍历返回该属性】，可配置【是否可删除或者修改该属性】
+
+对象分为3种：
+			内置对象——函数、日期、正则、数组
+            宿主对象——javascript运行所在的浏览器对象：window对象
+            自定义对象，比如自己new DIY()的
+属性分为2中：
+			自有属性
+            继承自原型的属性
+
+创建对象：1、对象直接量(对象字面量)：类似JSON【严格的json key必须是字符串】——{name:"lihonglei",salary:15000}，每次运行都会生成一个对象，如果放在循环里会产生很多的对象，
+						从目前来看，确实没有把这个json放在循环里声明过。
+           	对象直接量的原型是：Object.prototype
+         2、工厂模式：
+         		demo：
+         		function creatObj(name,age)
+         		{
+         			 var o=new Object();
+         			 o.name=naem;
+         			 o.age=age;
+         			 return o;
+         		}
+         		var obj1=creatObj("李宏磊",15);
+         		var obj2=creatObj("李宏磊2",27);
+         		【缺点】对于每一个实例，无法区分其“类”的归属，即无法识别对象的类型
+         		
+         3、构造器模式：new Date();new RegExp();
+         function Person(name, age, job)
+	         {
+							this.name = name;
+							this.age = age;
+							this.job = job;
+							this.sayName = function(){
+							alert(this.name);
+							};
+					 }
+					var person1 = new Person("Nicholas", 29, "Software Engineer");
+					每次new经历如下步骤：
+					(1)创建一个新对象
+					(2)将构造函数的this指向新创建的对象：所以this指向person1
+					(3)**执行构造函数中的代码！
+					(4)返回新对象
+					***构造器模式好于工厂模式的原因在于它具备标识能力，即perosn1、2都是Person 的实例，这个Person是自定义的
+					【缺点】对于构造器中的属性如果指向的是一个函数，则会大大浪费空间，每次new一个对象都要独立开辟另一个空间放属性指向的函数——即属性所指向的函数应该是“共享的”
+					
+         4、原型创建对象：原型对象：就是一个对象的始祖对象；类名.prototype指向类的原型对象；比如 new Date()得到一个日期对象，
+         		这个日期的原型对象就是Date.prototype，得到的是最“根”的始祖对象，如果以后要扩展Date类的方法，属性，就可以如此扩展：
+        		比如：类名.prototype.扩展的属性/方法；如果写成类名.prototype={属性/方法}的话会将原来的prototype覆盖。
+        		__proto__是类创建出来的实例才能调用的属性，同样指向原型对象；目前只有Firefox Safari chrome可用（实例.__proto__===构造器名.prototype）
+        		【注意】如果实例有属性和原型对象的属性一致，则实例就不会访问原型的属性，只会屏蔽原型属性；而原型属性也并没有被修改，依旧存在
+        		demo：
+        		function Person(){
+						}
+						Person.prototype.name = "Nicholas";
+						Person.prototype.age = 29;
+						Person.prototype.job = "Software Engineer";
+						Person.prototype.sayName = function(){
+							alert(this.name);
+						};
+						var person1 = new Person();
+						var person2 = new Person();
+						person1.name = "Greg";
+						alert(person1.name); //"Greg"—— 来自实例
+						alert(person2.name); //"Nicholas"—— 来自原型
+						
+						【in和hasOwnProperty()】
+						in用来判断某个实例是否有某个属性，这个属性可能来自原型，可能来自自己："name" in person1==>true/false;
+						hasOwnProperty()可以判断某个实例是否有自己的非原型中的属性：person1.hasOwnProperty("name")==>true/false;
+						因此只要 in 操作符返回 true 而 hasOwnProperty()返回 false，就可以确定属性是原型中的属性
+						访问属性：
+						（1）点表示法：对象.属性；如果没有这个属性，则返回undefined
+						（2）中括号表示法：对象["属性名"||变量名]；如果没有这个属性，则返回undefined
+						需要注意第二种方式[]，这种方式允许将属性名赋给一个变量，这是“点表示法”不具备的。而且若是属性是有空格的话，点表示法也无法使用
+						demo:
+						var propertyName = "name";
+						alert(person[propertyName]); //"Nicholas"
+						
+						
+						原型写法：
+						（1）ClassName.prototype.propertyName
+						（2）ClassName.prototype={constructor:className,propertyName:}
+						区别在于：如果是第一种写在哪里都不会影响生成的实例内部的属性；
+						demo：
+						var person1=new Person();
+						Person.prototype.newName="vinson";	//原来没有，在调用构造器生成实例后修改原型
+						person1.newName==>vinson						//因为此时查找newName会最终找到原型中，所以能够顺利输出
+						可是如果是“完全重写”prototype则不同了
+						demo：
+						var person1=new Person();								//此处依旧会指向原来的Person的原型地址
+						Person.prototype={"person1":"vinson"};	//重写全新的原型对象
+						person1.newName==>vinson								//因为此时查找newName会最终找到原始的原型对象而不是后来完全重写的（相当于开辟了新的内存地址），所以报错
+						
+						所以要小心的是实战中如果用后者确实省了很多的"prototype"代码，但是必须放在调用构造器生成实例之前！！！
+						【缺点】原型所谓的缺点其实也是其优点：共享所有的属性，对于行为（属性指向函数）的属性，如Person的sayName()——>function(){}自然要共享，
+						但是对于基本类型的变量：如name、age就应该对每一个实例各有不同，即应该用this.name this.age
+						所以我们常常集两者之长：构造器用来初始化基础属性、原型用来初始化行为属性
+						function Person(name, age, job){
+								this.name = name;
+								this.age = age;
+								this.job = job;
+								this.friends = ["Shelby", "Court"];
+						}
+							Person.prototype = {
+								constructor : Person,
+								sayName : function(){
+									alert(this.name);
+								}
+						}
+						【constructor】属性：每一个类一定有一个原型对象，这个原型对象必有一个不可枚举的属性：constructor,而这个属性的值：是函数对象
+				  	实例||原型对象.constructor===F，也就是说：它的值是函数对象；类名.prototype指向原型对象，原型对象中通过这个constructor属性又会指向这个构造器
+			    	如果重写了原型对象建议{constructor:F}，将这个加上，从而自定义一个属性，来实现反向引用
+				    eg:var F=function(){};
+				       var p=F.prototype;获取原型对象
+				       var c=p.constructor;获取函数对象(构造器)
+				       c===F
+						从这段代码看出：原型对象有constructor属性，所以——>所有由F创建出来的对象必有此属性——>F.prototype.constructor===F，或者说f.constructor===F;
+						
+						----------模拟java的继承机制-----------
+		        var Person = function () { };
+		        Person.prototype.Say = function () {
+		            alert("Person say");
+		        }
+		        Person.prototype.Salary = 50000;
+		        var Programmer = function () { };
+		        Programmer.prototype = new Person();
+		        Programmer.prototype.WriteCode = function () {
+		            alert("programmer writes code");
+		        };
+		        Programmer.prototype.Salary = 500;
+		        var p = new Programmer();
+		        p.Say();
+		        p.WriteCode();
+		        alert(p.Salary);
+
+         5、var o=Object.create(任意对象，扩展);第一个参数对象将成为o的原型对象，eg：var o=Object.create({"a":1,"b":2},扩展);此时o的原型就是{"a":1,"b":2}
+            var x=Object.create(Car.prototype,可选参数)，x继承了Car的原型，并扩展了“可选参数”，实际上create()方法就是创建了一个继承自某个父类的对象并扩展了相应的方法
+            书中模拟此方法的函数：
+            function inherit(p)
+            {
+                if(p===null){throw TypeError()}//如果传入的是null抛出异常
+                if(Object.create)
+                {
+                    return Object.create(p);//如果有此方法，直接使用
+                }
+                else
+                {
+                    var t=typeof p;
+                    if(t!=="Object" && t!=="function")
+                    {
+                        throw TypeError();
+                    }
+                    else
+                    {
+                        function f(){};
+                        f.prototype=p;
+                        return new f();
+                    }
+                }
+            }
+
+						【JSON——.json文件】
+						JSON是一种数据格式，不是一种编程语言，常用有三种方式存储
+						1、简单值：比如 5  比如 "JavaScript" 这在.json文件中是允许的，必须用双引号，而不可以用单引号
+						2、对象：
+						/*这里是JavaScript中的对象字面量，不是真正的json结构，只是这里只是与json相似，而且可以看到，里面的name age是没有双引号的*/
+						var person = 
+						{
+									name: "Nicholas",
+									age: 29
+						};
+						/*这才是真正的JSON格式，属性名必须加双引号！不是单引号，
+						    首先，没有声明变量（JSON 中没有变量的概念）。
+						    其次，没有末尾的分号（因为这不是 JavaScript 语句，所以不需要分号）。再说一遍，对象的属性必须加双引号，这在 JSON 中是必需的*/
+						{
+									"name": "Nicholas",
+									"age": 29
+						}
+						
+						序列化：
+						JSON.Stringify(json对象)                                                    JSON---->JSON结构字符串
+						JSON.parse("严格要求的json形式的字符串") /$.parseJSON(string_json)           JSON结构字符串---->JSON
+						
+				6、模拟java中的各种变量类型
+						java中：类方法/变量，实例方法/变量
+						javascript中： 之前说过：javascript中的函数是以值的形式出现的，函数名完全可以当做参数传入其它函数，也就是说，
+													如果一个变量值是函数，那这个属性就是方法了，否则就是一般的“字段”
+					                1、构造函数的属性/方法：function F(){}，F是这个函数的类名，所以为F添加的属性/方法就是：类属性/方法；
+					                2、原型对象的属性/方法：因为只要创建对象一定继承自原型，所以它的属性/方法一定是：实例属性/实例方法（而且是所有实例对象都会继承的）
+					                3、实例对象的属性/方法：和原型对象的不同，每个实例都可以定义自己的属性/方法，并且只是属于自己（和java的继承出来的类的实例一样，鸟——鸵鸟）
+					所以定义一个类有3步:  
+					（1）定义一个构造函数，并初始化实例属性；
+                    （2）给构造函数的prototype属性定义实例方法；
+                    （3）给构造函数定义类属性/方法
+
+						demo:function F(a,b)
+						    {
+						        this.a=a;
+						        this.b=b;
+						    }
+						    F.prototype.add=function(){return this.a+this.b}……//实例方法
+						    F.ZERO=0;//定义类字段
+						    F.get=function(){return this.a+this.b}……//类方法
+
+继承
+1、原型链继承：子类的原型是父类的实例
+2、构造器借用：Base.call(this,args);(很明显有缺点：就和构造器内有大量方法一样，开销很大！每次new 子类都会运行父类的构造器一遍)
+3、混合以上：使用原型链实现对类属性和方法的继承，而通过借用构造函数来实现对实例属性的继承
+		function SuperType(name){
+				this.name = name;
+				this.colors = ["red", "blue", "green"];
+		}
+		SuperType.prototype.sayName = function(){
+				alert(this.name);
+		};
+		function SubType(name, age){
+				//继承属性
+				SuperType.call(this, name);
+				this.age = age;
+		}
+		//继承方法
+		SubType.prototype = new SuperType();
+		SubType.prototype.constructor = SubType;
+		SubType.prototype.sayAge = function(){
+			alert(this.age);
+		};
+		var instance1 = new SubType("Nicholas", 29);
+		instance1.colors.push("black");
+		alert(instance1.colors); //"red,blue,green,black"
+		instance1.sayName(); //"Nicholas";
+		instance1.sayAge(); //29
+		var instance2 = new SubType("Greg", 27);
+		alert(instance2.colors); //"red,blue,green"
+		instance2.sayName(); //"Greg";
+		instance2.sayAge(); //27
+		
+		
+/--------------第8章 函数--------------/
+函数的本质是对象，它是Function类的实例引用，因为函数是一个对象，所以它才会有【函数名.闭包方法/属性】等；
+而函数名其实是指向函数对象的指针，所以一个函数其实可以有很多名字
+
+一、创建函数：
+    1、函数表达式：即匿名函数 var fun=function(){contents;}——因为声明了变量，所以会导致变量提前声明fun=undefined，故如果提前调用fun会报错
+    2、函数的声明：function fun(){contents}——fun可以处处调用，最大特点就是函数声明的提升，即调用可以放在声明的前面
+    3、构造函数式：var fun=new Function(参数){}——不推荐，因为会解析两次（第一次是ECMAscript解析，第二次字符创参数解析，性能差），
+    							但好处是能够清晰看到函数确实是“对象”，以及名称是对象的“指针”。
+ 【var fun=function(a,b){}】===【function fun(a,b){}】===【var fun=new Function(a,b){}】 
+ 例如：
+    alert(typeof function(){});// "function"
+    alert(typeof function(x,y){return x+y;});// "function"
+    alert(typeof new Function("x","y","return x*y;"))// "function"
+    alert(typeof function(){});// "function" 
+    alert(typeof function(x,y){return x+y;});// "function" 
+    alert(typeof new Function("x","y","return x*y;"))// "function"
+
+ 匿名函数调用方式1：
+            f();//如果写在这里调用——无法调用，f变量确实提前了，但是赋给f的值并没有提前（这里就是前面的JavaScript中的声明提前机制）
+            var f=function(){alert("提前问题");}
+ 匿名函数调用方式2：
+            (function(x,y){alert(x+y);})(1,2);这种方式函数会直接运行！
+            (function(x,y){alert(1)})(1,2)应该是与 a=function(){alert(1)}()等价，不能连a=都去掉。
+
+
+二、调用的四种方式：
+                1、作为函数：f()
+                2、作为方法：对象.f()=> var object={f:function(){}}
+                3、**new构造器调用**
+									[new 的作用]                
+									-创建一个新的对象，这个对象的类型是object；注意：这个和function f(){}/var f=function(){}中的f不同，f是function类型！
+									-设置这个新的对象的内部、可访问性和[[prototype]]属性为构造函数（指prototype.construtor所指向的构造函数）中设置的；
+									-执行构造函数，当this关键字被提及的时候，使用新创建的对象的属性；所谓执行就是运行构造函数一遍
+									-返回新创建的对象（除非构造方法中返回的是‘无原型’）。此时的对象已经有了初始化后的所有属性。
+                var Person=function(name,age)//function Person(name,age){}
+                    {
+                        this.name=name;//这里和java不同，需要提前定义类中的属性，name，age
+                        this.age=age;
+                        alert("a");//new对象后运行了，
+                        //this.getInfo();如果加上这句，那么只要new一个Person对象(或者Person("lhl",27)也会运行)，就会直接运行这个函数，而不用new对象再调用getInfo()方法，也就是说：new一次就会
+                        运行类中所有代码！
+                        //而且还记得：不要把方法写在方法内，而是用prototype扩展
+                    }
+                4、对象.方法名.call(调用对象，参数) apply();
+                5、(function(x,y){return x+y})(1,2); 其实(function(x,y){return x+y})返回的是一个变量，是对函数的引用，所以：函数引用(1,2),就会执行函数，就像var x=function(){};x()，这里x就是引用
+
+三、函数参数：
+    	形参：定义函数时所写的参数
+    	实参：真正调用函数时传入的参数，这个参数只能传递“值”，不能够传递引用
+			arguments： 获取传入的实参的类数组对象(不是真正的数组)：arguments.length；arguments[i]表示第几个实参数
+			function doAdd(num1, num2) {
+				arguments[1] = 10;
+				alert(arguments[0] + num2);
+			}
+			此处若只传入一个值，则弹出NaN，原因在于num2并没有改变值为10，因为传入一个值的时候，arguments[1]不会指向num2；num2为Undefined
+			arguments[1]指向的内存空间和num2并不是同一个，只有当传入两个实参的时候才会让arguments[1]和num2指向“同一”内存空间
+			永远记住：arguments是根据传入的实参个数决定的，而不是定义的形参！
+			
+四、函数的变量：
+    	局部变量：在函数中定义：var x;
+    	实例属性：this.x;
+    	类属性：函数名字.x;
+                
+五、函数的属性：每一个函数都必须有两个属性——length,prototype
+			函数名.length     返回函数定义时的形参个数：demo——function x(a,b,c){}  x.length===3
+			函数名.prototype  返回原型对象
+
+六、call(,逐个写参数)和apply(,arguments|[参数数组])
+这两个函数真正的作用是在“某个作用域下”调用函数，修改了this值，即——某函数.call(某个作用域下this,参数列表);
+例子：
+a.call(b);
+1、本质上a/b都是对象，只不过a方法运行于b的环境下
+2、a.call(b)是以b为上下文运行a函数，或者说执行a； 而从另一个角度看——也是b中扩展了名字叫做"a"的这个引用函数变量，即b是调用者
+        var o = { color: "blue" };
+        function sayColor(){
+          alert(this.color);
+          this.hi=function()
+          {
+              alert("hi");
+          }
+        }
+        sayColor.call(o);//sayColor函数指定了作用域o(上下文环境)，而从另一个角度我的理解这等价于var o={color:"blue",hi:function(){属性 方法}}，即扩展了o对象
+        o.hi();//所以这里就导致o能够调用hi()
+        上面的代码等价于：首先运行sayColor()，运行完后o对象就会动态增加hi这个变量(this.hi中的this就是o)，所以第二步才会能够运行o.hi();
+        在浏览器中：
+        var o={color:"blue",sayColor:function(){alert(this.color);this.hi=function(){alert("Hi!");}}};o.sayColor();console.log(o);//o中多了hi这个变量
+        var o={color:"blue",sayColor:function(){alert(this.color);this.hi=function(){alert("Hi!");}}};console.log(o);//而o中没有hi
+
+3、在继承中经常会写如下：原型链原理(可见p162)
+		function Base(){}
+		function son()
+		{
+			Base.call(this);
+		}
+		new son();
+		其实这里也是利用了son在初始化的时候让Base的所有属性和方法附加在this上，而这里的this是 new son()出来的实例
+4、反过来看：b对象扩充了a身上的功能，而b本身又不会被影响（没有耦合）——所以看起来是b继承a中的所有变量（属性/函数）
+
+
+call(调用者对象)             eg  f.call(x);等价于：x.f();
+apply传入的是一个参数数组，也就是将多个参数组合成为一个数组传入，而call则作为call的参数传入（从第二个参数开始）。
+如 func.call(func1,var1,var2,var3)对应的apply写法为：func.apply(func1,[var1,var2,var3])
+例子：Array.prototype.map.call(docuemnt.getElementsByTagName("p"),function(e){return e.innerHtml;});
+
+
+var f=function(x,y){return x+y} 和 function f(x,y){return x+y}并没有根本区别                
+七、函数的重载【没有真正的函数重载】：
+我们可以利用上面的arguments对象来模拟，即不写形参，通过判断arguments的长度length来判断，从而运行不同的逻辑，模拟“出同名不同参数”的重载
+【作为值的函数】
+两个用途：	1、把函数的名字，即指针当做变量传入到另一个函数中
+					2、把函数当做一个引用return 出去，当做一个函数的指针去用
+demo:
+					var x=function(){alert("把我当做参数传入另一个函数");}
+					var y=function(fun){fun();}
+					y(x);			"把我当做参数传入另一个函数"
+					
+					var y=function()
+					{
+						return function()
+						{
+							alert("当做返回值传递");
+						}
+					}
+					var x=y();
+					x();			//"当做返回值传递"
+
+【arguments.callee】
+最大的用处就是消除函数内部和自己的耦合,arguments.callee永远指向所在得函数，如下的话：arguments.callee===factorial()这个函数的地址指针！
+demo：
+function factorial(num){
+	if (num <=1) {
+		return 1;
+	} 
+	else {
+	/*这里的问题就在此处，factorial函数和自己耦合，一旦"factorial"变量被设置为其它如：var x=factorial;factorial=null;再运行x()肯定报错了
+	 此时可以写为如下 return num* arguments.callee(num-1);
+	 */
+		return num * factorial(num-1)	
+	}
+}
+
+【this】
+this永远指向调用此函数的对象的引用！
+demo：
+			window.color = "red";
+			var o = { color: "blue" };
+			function sayColor(){
+				alert(this.color);
+			}
+			sayColor(); //"red"
+			/*最重要的是这句，其实首先是动态给o对象增加属性sayColor,并将此属性赋给sayColor函数的指针引用，即o.sayColor会指向function sayColor,此时this指向o对象
+			 所以this.color就是o.color*/
+			o.sayColor = sayColor;
+			o.sayColor(); //"blue"
+			
+【闭包】实际是作用域链的一种延伸
+var scope="global";
+function checkScope()
+{
+    console.log("闭包例子：");
+    var scope="local";
+    function f(){return scope};
+    return f;//
+}
+    console.log(checkScope()());
+【函数的属性和方法】
+因为函数本身也是对象，所以很正常会有他的属性和方法
+函数名.length		返回的是形参的个数，这个和arguments.length返回的是
+
+参数过多问题：
+function x(x,y,z)
+{
+   if(arguments.length<3){抛出异常}
+}
+这里有一个麻烦的现象：如果参数很多，我们就不得不查文档，看哪个参数对应哪个
+解决方式：传入一个对象，这个对象实际json形式{"参数1":"值1"……}
+function(args){args.参数1……}这样就不用记忆参数的具体位置了
+
+
+
+
+/--------------变量、作用域、内存问题--------------/
+1、局部变量声明提前
+var scope="global";
+function check（）
+{
+    console.log(scope);	//输出的是："undefined"
+    var scope="local";	//如果想在此行语句后访问全局的变量，则用window.scope
+    console.log(scope);	//输出的是："local"
+}
+上述代码等价于：因为局部变量只有在执行到var时候，才能真正的赋值即
+var scope="global";
+function check（）
+{
+    var scope;//肯定是undefined
+    console.log(scope);//输出的是："undefined"
+    scope="local";
+    console.log(scope);//输出的是："local"
+}
+
+2、函数作用域
+在JavaScript中只有函数作用域，没有块级别的作用域，即在函数内定义的变量在整个函数内都可见，而且正因为上面这个原因才有“声明提前”这个说法；
+demo：
+if (true) {
+	var color = "blue";//由于没有块级作用域，所以color就会附加在全局变量上！所以在写代码时必须小心，如果可以，将判断语句封装在函数中，再运行函数，从而降低全局变量个数
+}
+alert(color); //"blue"
+注意：声明提前不代表赋值也会提前！！！
+
+3、作用域链(有专门的一篇笔记)
+demo:其实作用域链，就是一个变量所依附的对象链，对象(函数其实也可以看做是对象).变量
+name="lwy";							//1-最外层：window
+function t(){						//2-t()函数的作用域
+    var name="tlwy";
+    function ss(){			//3-ss()函数作用域
+        console.log(name);
+    }
+    ss();
+}
+t();
+在执行t()输出name时是按照ss()-->t()就结束了，只要找到就不会再向父级查询；
+即定义一个函数时（如果内部没有嵌套函数）其实就已经保存了一个作用域链——它的作用域链上至少有两个：一个是它本身构成的对象，下面是全局window，
+而且全局作用域对象在堆栈最底部，在查找变量时就会按照本身然后依次向下查找到全局，这就是为什么要减少全局变量的原因
+
+4、释放内存
+function createPerson(name){
+	var localPerson = new Object();
+	localPerson.name = name;
+	return localPerson;
+}
+var globalPerson = createPerson("Nicholas");
+// 手工解除 globalPerson 的引用
+globalPerson = null;
+从这个demo中可以看到，最终通过给全局变量赋值为null释放了此变量的引用；
+不过，解除一个值的引用并不意味着自动回收该值所占用的内存。解除引用的真正作用是让值脱离执行环境，以便垃圾收集器下次运行时将其回收，因为JavaScript是自动回收机制
+【总结】
+--基本类型值在内存中占据固定大小的空间，因此被保存在栈内存中；
+--引用类型的值是对象，保存在堆内存中；
+【堆和栈区别】
+1、栈（操作系统）：由操作系统自动分配释放 ，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈；
+2、堆（操作系统）： 一般由程序员分配释放， 若程序员不释放，程序结束时可能由OS回收，分配方式倒是类似于链表。
+　　二、堆栈缓存方式区别：
+		　　1、栈使用的是一级缓存， 他们通常都是被调用时处于存储空间中，调用完毕立即释放；
+		　　2、堆是存放在二级缓存中，生命周期由虚拟机的垃圾回收算法来决定（并不是一旦成为孤儿对象就能被回收）。所以调用这些对象的速度要相对来得低一些。
+　　三、堆栈数据结构区别：
+		　　堆（数据结构）：堆可以被看成是一棵树，如：堆排序；
+		　　栈（数据结构）：一种先进后出的数据结构。
+
+
+
+
+/--------------第10章 正则表达式--------------/
+1、创建的两种方式
+(1)var reg=/patten/flag                 对象字面量方式，其中flag是有三个值：
+																				g：全区搜索，表示全局（global）模式，即模式将被应用于所有字符串，而非在发现第一个匹配项时立即停止；
+																				i：不区分大小写
+																				m：表示多行（multiline）模式，即在到达一行文本末尾时还会继续查找下一行中是否存在与模式匹配的项
+demo：var pattern3 = /.at/gi;
+(2)var reg=new RegExp(/\W/);    new一个对象(不要加双引号)
+注意：在ECM3中，使用对象字面量的话正则共享一个实例，而在最新的ECM5中则统一了，都会生成新的对象！
+这些字符是必须用转义字符才能正常匹配的			( [ { \ ^ $ | ) ? * + .]}
+eg:function getEcm(){
+    var reg=/a/;
+    reg.x="hello";
+    return reg;
+}
+var r1=getEcm();
+var r2=getEcm();
+console.log(r1===r2);//如果是ECM3则返回true，ECM5则返回false
+2、匹配类型(以下指示匹配  某一个，某一个，某一个！)
+"数字/字符串"    自身
+\o              NUL字符
+\t              制表符
+\n              换行符
+\v              垂直制表符
+\f              换页
+\r              回车
+[……]            one of them
+[^……]           非one of them
+\w              等价于[a-zA-Z0-9]
+\W              等价于[^a-zA-Z0-9]
+\d              数字  ，等价于[0-9]
+\D              非数字，等价于[^0-9]
+\s              空白符
+\S              非空白
+
+{n,m}           出现次数>=n 且 出现次数<=m
+{n,}            出现次数>=n
+{n}             出现次数=n
+?               匹配前一项0或者1次，依旧是说：前面的那一项可有可无
++               匹配前一项1次或者多次
+*               匹配前一项0次或者多次
+3、模式类型（默认贪婪）
+注意：使用*和？，因为他会导致什么都不匹配，匹配0个也是匹配：eg：/a*/ 它是匹配"bbbb"的，因为这个字符串匹配0个a
+
+(1)贪婪模式[非全局]，即按照最多的情况匹配，如下第一行\w是匹配任意a-zA-Z0-9这其中之一，{1,3}指的是可以由上述字符组成1/2/3个，因为是贪婪，所以按照最多匹配3个原则，返回“abc”
+"abcdefdfsfeffddd".match(/\w{1,3}/);   ["abc"]
+"ab".match(/\w{1,3}/);   ["ab"]
+
+(2)贪婪模式[全局]，即一个都不放过，正则表达式会逐个扫描字符串到最后(而且依旧以贪婪模式为第一要义，剩余的字符在匹配2的个数，依次类推)
+"abcdefdfsfeffddd".match(/\w{1,3}/g);  ["abc", "def", "dfs", "fef", "fdd", "d"]
+
+(3)非贪婪模式[非全局]，则匹配个数最少的，而且不会像全局模式全部扫描，只要找到即刻终止——第四行
+"abcdefdfsfeffddd".match(/\w{1,3}?/);  ["a"]
+
+(4)非贪婪模式[全局]，则匹配个数最少的，而且会扫描全部字符串，找出所有满足
+"abcdefdfsfeffddd".match(/\w{1,3}?/g); ["a", "b", "c", "d", "e", "f", "d", "f", "s", "f", "e", "f", "f", "d", "d", "d"]
+
+4、选择、分组、引用
+a|b   ：匹配"a"或者"b"，注意：匹配的方式是从左到右，如果左侧已经匹配，则放弃右边的匹配
+()    ：当做一个单元使用*+?，只对前面括号中的内容进行匹配。eg:/java(script)?/,可以匹配java或者Javascript,"script"可有可无
+
+
+
+
+/--------------第14章 window/BOM对象——(window对象的方法或者属性都可以直接调用，不用写成window.方法/属性的形式)--------------/
+
+1、窗口位置【即浏览器窗口距离左侧和上面的距离】
+window.screenTop/Left：非firefox
+window.screenY/X     ：Firefox
+判断写法：
+var leftPos = (typeof window.screenLeft == "number") ?window.screenLeft : window.screenX;
+var topPos = (typeof window.screenTop == "number") ?window.screenTop : window.screenY;
+
+2、窗口大小
+window.innerHeight/innerWidth：inner指的是浏览器中“视口”：html的内容的宽和高【IE9+，chrome ，Firefox，opera】
+window.outerHeight/outerWidth：outer指的是浏览器“窗口”的宽高【IE9+，chrome ，Firefox，opera】
+document.body.clientWidth/clientHeight ： 指浏览器的“窗口”宽高【IE8等低级】
+document.documentElement.clientWidth/clientHeight ：指浏览器的“视口”宽高【IE8等低级】
+
+3、定时器
+【超时调用】
+var value1=setTimeout(函数名称/函数体function (){}/代码字符串,毫秒数X)		X毫秒后执行函数;【注：如果传递是函数名称，没有括号！最好不要用字符串（性能差）！】
+clearTimeout(value); 																										取消setTimeout的执行
+
+【间歇调用-少用，可用超时调用模拟出来】
+var value2=setInterval(函数名称/函数体function (){}/代码字符串,毫秒数X)		每经过X毫秒执行函数;【注：如果传递是函数名称，没有括号！最好不要用字符串（性能差）！】
+clearInterval(value2); 																									取消setInterval的执行
+
+4、window常用方法/属性                                    
+window.open("url","name","parameter")        	url:打开的新窗口/选项卡页面地址；
+																							name：_blank/_parent/_self/_top/任意字符串;
+																							parameter:新窗口的参数(宽高等)，返回值是：打开的窗口的window对象
+                                             	eg:window.open('xxx','_blank','width=200,height=100')
+window.close()                               	关闭窗口
+window.confirm("显示的信息")                 	弹出：“确定”or“取消”，返回一个Boolean值；
+window.prompt("提示框title")                		弹出：要求用户输入的字符串，并返回此字符串
+
+5、location
+location                        		window.location属性返回Location对象：可直接写——location.X
+【常用属性列表】
+                                    eg:http://event.daoxila.com/HunChe/index.html?city=bj
+                                    host:         "event.daoxila.com"
+                                    hostname:     "event.daoxila.com"
+                                    href:         "http://event.daoxila.com/HunChe/index.html?city=bj"
+                                    origin:       "http://event.daoxila.com"
+                                    pathname:     "/HunChe/index.html"
+                                    port:         ""					返回URL中指定的端口号。如果URL中不包含端口号，则这个属性返回空字符串
+                                    protocol:     "http:"			返回页面使用的协议。通常是http:或https:
+                                    search:       "?city=bj"	返回URL的查询字符串。这个字符串以问号开头
+                                    
+location.replace(url)                 在当前页面载入新的页面，当前页面被替换掉，与此同时会把当前文档从历史记录中清除，即无法返回到载入之前的页面
+location.assign(url)                  在当前页面载入新的页面，当前页面被替换掉，但当前页面可以利用“后退”按钮返回到载入之前的页面
+location.href=URL											此方式和assign(URL)一样，没有区别
+location.reload(true/false|不写)      	F5 刷新当前页面，Boolean值：true：从缓存载入，不写|false从服务器重新获取
+
+5、history
+history.go(num)                      num正负值都可以，功能是：相当于点击向前或者后退按钮几次，若是0会刷新当前页面
+history.back()                       相当于后退按钮
+history.forward()                    相当于前进按钮
+
+6、navigator
+辨别浏览器：是通过某浏览器是否支持某方法/功能(鸭式辩型)，而不是通过浏览器版本号，但在实战中确实可以通过版本号的检测来判断IE的版本！
+navigator.appName    	不准，测试结果：IE11,chrome,firefox(Netscape)；用此种方式判断浏览器是不准确的，
+											但是却可以判断是否是高级浏览器（比如有些效果在  IE9- 无效），如果是Netscape则一般是高级浏览器
+navigator.userAgent  	可用，通过字符串特征值的判断
+navigator.appVersion	可用，返回浏览器的平台以及版本；但是需要截取字符串
+
+
+/--------------第15章 DOM-------------/
+
+(1)获取DOM
+
+【利用方法】
+document.getElementById("id_value")										返回的就是一个唯一DOM对象
+document.getElementsByClassName("className_value");		返回DOM类数组对象(array-like)，若获取某个DOM对象——DOM[i]【注意：IE8-不支持，H5新增】或者.item(i)
+document.getElementsByTagName("tag_name")  						同上；
+document.getElementsByName("name_value")							返回值如果有多个则是类似数组的只读对象，即nodeList[0]可以选取第一个
+
+【注意：对于IE8或者其更低的版本，getElementsByClassName是不支持的，可以用querySelectorAll("css选择器");其实这个和jquery一样】
+
+DOM.quertSelector("选择器")														若是DOM节点调用则只会查询其子节点；若document调用则全局搜索；只返回第一个匹配的元素，如果没有搜索到则：null；如果输入错误的字符：报错		
+DOM.quertSelectorAll("选择器")													返回的则是所有匹配的类数组对象（只是一个数组快照，好处是速度快，体积小），遍历 nodelist[i]
+DOM.matchesSelector("选择器")													返回boolean值；DOM是否匹配选择器
+
+【利用属性】
+parentNode                   [属性]获取某节点的父节点，Document父节点为null
+childNodes[n]                [属性]获取所有子节点——类数组对象   如果没有即为null
+firstChild/lastChild         [属性]获取子节点中第一个和最后一个   如果没有即为null[firstChild===childNodes[0];X.childNodes[1]===X.firstChild.nextSibling]
+nextSibling/previousSibling  [属性]该节点的兄弟节点中的下一个和上一个（对于<li>标签）
+
+eg:document.childNodes[0].childNodes[1]===document.firstChild.firstChild.nextSibling返回的都是body  [document.childNodes[0]返回的->html<-document.firstChild]
+   <html>0
+      <head>0
+        <title></title>
+      </heat>
+      <body></body>1
+   </html>
+
+特殊的：document.body——返回body；document.
+
+【遍历问题——以下几个属性特点是排除了换行空格这样的空白节点问题，直接可用不用判断nodeType！firstChild等不一样】
+
+childElementCount：返回子元素（不包括文本节点和注释）的个数。
+firstElementChild：指向第一个子元素； firstChild 的元素版。
+lastElementChild：指向最后一个子元素； lastChild 的元素版。
+previousElementSibling：指向前一个同辈元素； previousSibling 的元素版。
+nextElementSibling：指向后一个同辈元素； nextSibling 的元素版。
+对于IE9-节点不会包含换行和注释，但是其它的浏览器则不同，即换行或者注释行都会当做一个节点，为遍历带来麻烦
+var i,len,child = element.firstChild;
+while(child != element.lastChild)
+{
+	if (child.nodeType == 1)
+	{ //检查是不是元素
+		processChild(child);
+	}
+	child = child.nextSibling;
+}
+---而使用 Element Traversal 新增的元素，代码会更简洁---
+var i,len,child = element.firstElementChild;
+while(child != element.lastElementChild)
+{
+	processChild(child); //已知其是元素
+	child = child.nextElementSibling;
+}
+
+
+(2)创建dom
+document.createElement("标签名")        eg：document.createElement("div")    [成本高]
+特别的：创建script节点
+				var script = document.createElement("script");
+				script.type = "text/javascript";
+				script.src = "client.js";
+				document.body.appendChild(script);
+
+
+(3)添加、删除、替换dom节点
+fatherDom.appendChild(newDom)                				在dom节点的子节点最后添加newDom【返回值就是新添加的dom节点，但是如果添加的节点是已经存在的则，已经存在的节点就会被移动到新位置！】
+fatherDom.insertBefore(newDom,someNode/null)      	在dom节点的子节点中的某someNode前面增加newDom【返回值就是新添加的dom节点】，如果是null则和appendChild()一样
+
+fatherDom.replaceChild(newDom,oldNode)      				在dom节点的子节点中的某someNode前面增加newDom，返回被替换的节点
+fatherDom.removeChild(oldNode)              				父节点删除某子节点
+
+someDOM.cloneNode(boolean)													若为true则为深度复制，反之则只是copy调用的节点【在IE存在bug：不仅会复制节点，还会复制节点的事件！】
+
+
+(3)获取特性值，设置特性值(如果不存在返回null，对于自定义的在H5的规范下——应该以  data-XXX命名)
+dom.getAttribute("特姓名/自定义的")          	eg：document.getElementById("img")[0].getAttribute("src")，和上面的方式不同之处在于，
+																							这个方法他总会返回字符串，哪怕其值是布尔值，或者数值{比如input中的maxLength}
+dom.setAttribute("特姓名","值")								【同样，用dom.属性也可以更改，但只限于标签自带的属性名，如果直接写一个未知的属性/特性则不会添加】
+dom.hasAttribute("特性值")
+dom.removeAttribute("特性值")
+dom.length																		返回dom个数
+
+还有另外一种方式：dom.特性  获取的【如：id src className title lang dir】
+demo：
+			var div = document.getElementById("myDiv");
+			alert(div.id); //"myDiv""
+			alert(div.className); //"bd"
+			alert(div.title); //"Body text"
+			alert(div.lang); //"en"
+			alert(div.dir); //"ltr"
+
+div.id = "someOtherId";
+div.className = "ft";
+div.title = "Some other text";
+div.lang = "fr";
+div.dir ="rtl"; 
+
+
+(4)dom原生操作class字符串[这里其实问题描述为：假设div有多个类名class="a b c"，那如果要删除b，就会极其麻烦]
+dom.classList.add(value)					将给定的字符串值添加到列表中。如果值已经存在，就不添加了。
+dom.classList.contains(value)			表示列表中是否存在给定的值，如果存在则返回 true，否则返回 false。
+dom.classList.remove(value)				从列表中删除给定的字符串。
+dom.classList.oggle(value)				如果列表中已经存在给定的值，删除它；如果列表中没有给定的值，添加它
+dom.classList.length							返回class中有几个类名
+dom.classList.item(i)/[i]					返回class中第i个类名值；从0计数
+demo：div.classList.remove("user");
+
+
+【Element对象属性方式获取】
+1、获取dom
+2、dom.id/className/title/[style]/[onclick等]——后两个比较特别：如果是通过getAttribute获取为字符串，如果是以属性获取则第一个为对象，第二个为函数
+eg:document.getElementById("img")[0].src,获取/设置;它可以返回数值和布尔类型
+
+(4)获取文本，设置文本
+dom.innerHTML     返回节点的所有内容和jquery中的html()方法一样，如果内容是文本——返回文本，如果内部还有子标签则返回所有标签代码
+dom.innerText     返回节点的所有内容和jquery中的text()方法一样，返回所有文本
+dom.nodeValue     返回单个节点标签的纯文本
+dom.value         返回input,textarea标签中的文本值
+
+/--------------第16章 脚本化CSS--------------/
+注意:比如：font-size:dom.style.font-size这是错误的写法！正确：fontSize,同理所有有连字符的css属性都要变为“驼峰式”写法！
+dom.style.css属性名="字符串"   如果是数值要加上px等，如："100px"
+
+/--------------第17章 事件处理--------------/
+（1）事件处理
+冒泡：从被触发的dom开始向它的父级……连续触发
+捕获：从document开始——html——body ……一直到被触发的节点
+
+1、	DOM 0级 处理方式：优点：方便，跨浏览器兼容好
+		添加：dom.onXXX=function(){……}
+		删除：dom.onXXX=null;
+2、	DOM 2级 处理方式：最后参数：boolean；如果是true——则事件在“捕获”阶段进行处理；如果是false——则事件在“冒泡”阶段进行处理
+		添加：dom.addEventListener("无on的事件",函数名/function(){……函数体……},默认是false);【IE9+等高级浏览器】
+		删除：dom.removeEventListener("无on的事件"，函数名，boolean)；注意：此处的函数必须是函数名，当然上面的添加事件也是要用函数名的，只有这样才能移除绑定事件
+3、	IE8-处理方式：【只是冒泡】
+		添加：attachEvent("onXXX",函数名/function(){……函数体……})
+		删除：detachEvent("onXXX"，函数名);
+4、	EventUtil.addHandler(window/document/DOM对象, "load", function(event){……}/函数名);			此函数是可以在任何浏览器中通用，即可以跨浏览器的，而不用区别DOM0，DOM2
+		EventUtil.removeHandler(window/document/DOM对象,"click",fun);													同样，函数只能是函数名！
+【注意】
+见此处也必须是函数名才能删除事件，而且和DOM2级不同，它不需要boolean，
+而且注意：事件函数内的this是指向window对象的，和addEventListener()指向dom节点不同
+
+（2）事件对象event（一般）
+bubbles 										Boolean										只读 	表明事件是否冒泡
+cancelable 									Boolean 									只读 	表明是否可以取消事件的默认行为
+currentTarget 							Element 									只读 	其事件处理程序当前正在处理事件的那个元素
+defaultPrevented 						Boolean 									只读 	为 true 表 示 已 经 调 用 了 preventDefault()（DOM3级事件中新增）
+detail 											Integer 									只读 	与事件相关的细节信息
+eventPhase 									Integer 									只读 	调用事件处理程序的阶段： 1表示捕获阶段， 2表示“处于目标”， 3表示冒泡阶段
+preventDefault() 						Function 									只读 	取 消 事 件 的 默 认 行 为 。 如 果 cancelable是true，则可以使用这个方法
+stopImmediatePropagation() 	Function 									只读 	取消事件的进一步捕获或冒泡，同时阻止任何事件处理程序被调用（DOM3级事件中新增）
+stopPropagation() 					Function 									只读	 	取消事件的进一步捕获或冒泡。如果bubbles为true，则可以使用这个方法
+target 											Element 									只读 	事件的目标
+trusted 										Boolean 									只读 	为true表示事件是浏览器生成的。为false表示 事 件 是 由 开 发 人 员 通 过 JavaScript 创 建 的（DOM3级事件中新增）
+type 												String 										只读 	被触发的事件的类型
+view 												AbstractView 							只读 	与事件关联的抽象视图。等同于发生事件的window对象
+
+【IE下获取event】
+1、在DOM0状态下获取：即 dom.onXXX=function(){}{var event=window.event}
+2、attachEvent(事件，function(event){})
+cancelBubble 								Boolean 									读/写 默认值为false，但将其设置为true就可以取消事件冒泡（与DOM中的stopPropagation()方法的作用相同）
+returnValue 								Boolean 									读/写 默认值为true，但将其设置为false就可以取消事件的默认行为（与DOM中的preventDefault()方法的作用相同）
+srcElement 									Element 									只读 事件的目标（与DOM中的target属性相同）
+type 												String 										只读 被触发的事件的类型	
+
+
+
+【event.target，最大的价值就是JavaScript原生委托】
+demo：
+document.body.onclick = function(event){
+		alert(event.currentTarget === document.body); //true
+		alert(this === document.body); //true
+		/*
+		 注意此处：event.target永远指向被触发的dom，而不是绑定的dom；body被绑定click，但当我们点击按钮时因为按钮本身没有被绑定事件，所以向上冒泡，直到body触发了事件，
+		 而这个时间不是为body而是event.target准备的；所以event.currentTarget === document.body为true，而this为document.body
+		 */
+		alert(event.target === document.getElementById("myBtn")); //true
+};
+
+【阻止默认行为的的3种方式】
+return false;
+event.preventDefault();						一般浏览器
+event.returnValue=true;						IE浏览器
+
+【阻止冒泡的2种方式】
+event.stopPropagation()           阻止事件的冒泡+捕获：仅限IE9+/chrome/firefox可用
+event.cancelBubble=true           阻止事件的冒泡：IE8-
+
+【兼容写法】
+var EventUtil =
+{
+		addHandler: function(element, type, handler){
+		//省略的代码
+		},
+		getEvent: function(event)
+		{
+			return event ? event : window.event;
+		},
+		getTarget: function(event){
+			return event.target || event.srcElement;
+		},
+		preventDefault: function(event)
+		{
+			if (event.preventDefault)
+			{
+				event.preventDefault();
+			} 
+			else 
+			{
+				event.returnValue = false;
+			}
+		},
+		removeHandler: function(element, type, handler)
+		{
+			
+		},
+		stopPropagation: function(event)
+		{
+			if (event.stopPropagation){
+				event.stopPropagation();
+			}
+			else 
+			{
+				event.cancelBubble = true;
+			}
+		}
+};
+
+
+（2）事件
+【UI事件】
+load：		根据DOM2规范要在document上绑定此事件，但window也可以，为的是确保向下兼容：window.onload=function(){}[DOM0];window.addEventListener("load",function(……));
+scroll：页面滚动事件，EventUtil.addHandler(window, "scroll", function(event){});
+
+【焦点事件】
+focus：		在元素获得焦点时触发。这个事件不会冒泡；所有浏览器都支持它
+focusin：	冒泡的
+blur：			在元素失去焦点时触发。这个事件不会冒泡；所有浏览器都支持它。
+focusout：冒泡的
+
+【鼠标事件，除了click，其它事件对于键盘都是无效的！所以对于残疾人要特别注意】
+click
+dbclick
+
+mousedown
+mouseup
+
+mouseenter：光标首次进入元素内部时触发，不冒泡，进去其子元素不触发——只在进入时触发
+mouseleave：光标首次离开时触发，不冒泡，同上，进入子元素也不会触发——只在离开时触发
+mouseover：和mouseenter相似，鼠标在某元素上方，当移入目标元素时触发，“另一元素”包括此元素的子元素，也包括其父元素
+mouseout：和mouseleave相似，鼠标在目标元素上方，当移入另一元素时触发，“另一元素”包括此元素的子元素，也包括其父元素
+
+mousemove：在元素内部移动时触发
+
+event：
+--clientX,clientY：	相对用户视口(即浏览器窗口中的可见区域，不包括滚动条滑动出来的区域，比如将窗口还原，那视口就会变小)的横纵坐标
+--pageX,pageY：			相对页面的横纵坐标（即整个页面包括通过滚动条的滚动出来的那部分区域），当页面未滚动时，鼠标某点：pageX===clientX,pageY===clientY；
+										对于IE8-，由于不支持，则用document.body.scrollTop/scrollLeft；【混杂模式】或者document.documentElement.scrollTop/scrollLeft【标准模式】
+										var div = document.getElementById("myDiv");
+										EventUtil.addHandler(div, "click", function(event)
+										{
+											event = EventUtil.getEvent(event);
+											var pageX = event.pageX,
+											pageY = event.pageY;
+											if (pageX === undefined)
+											{
+												pageX = event.clientX + (document.body.scrollLeft ||
+												document.documentElement.scrollLeft);
+											}
+											if (pageY === undefined)
+											{
+												pageY = event.clientY + (document.body.scrollTop ||
+												document.documentElement.scrollTop);
+											}
+											alert("Page coordinates: " + pageX + "," + pageY);
+										});
+										
+--screenX,screenY：	相对整个显示器屏幕的位置
+
+mousewheel：						其它浏览器，当鼠标滚轮滚动时触发，其event对象有wheelDelta属性，如果大于0则向上滚动【120的倍数】，如果小于0则向下滚动【-120的倍数】
+DOMMouseScroll：				FireFox浏览器独有，同样其event也有属性detail，不过不同之处：如果大于0则向下滚动【-3的倍数】，如果小于0则向上滚动【3的倍数】
+Demo：
+			window.addEventListener("mousewheel",function(event){
+			            console.log(event.wheelDelta);
+			        });
+
+【键盘也文本事件】
+keydown：		用户按下任意键触发，如果按住不放会重复触发
+keypress：		用户按下字符键触发，如果按住不放会重复触发
+keyup：			已经输入后，抬起按键触发
+textInput：	和keypress不同，它是在文本插入文本框之前触发，而且按钮必须是实际输入的字符，对于此事件的event还有一个data属性，返回的是按下去的字符值，比如按“S”，返回S
+keyCode：event.keyCode
+/**********************常用的按键编码**********************/
+退格（Backspace） 8 									数字小键盘1 97
+制表（Tab） 9 												数字小键盘2 98
+回车（Enter） 13 										数字小键盘3 99
+上档（Shift） 16 										数字小键盘4 100
+控制（Ctrl） 17 											数字小键盘5 101
+Alt 18 															数字小键盘6 102
+暂停/中断（Pause/Break） 19 					数字小键盘7 103
+大写锁定（Caps Lock） 20 							数字小键盘8 104
+退出（Esc） 27 											数字小键盘9 105
+上翻页（Page Up） 33 								数字小键盘+ 107
+下翻页（Page Down） 34 							数字小键盘及大键盘上的- 109
+结尾（End） 35 											数字小键盘 . 110
+开头（Home） 36 											数字小键盘 / 111
+左箭头（Left Arrow） 37 							F1 112
+上箭头（Up Arrow） 38 								F2 113
+右箭头（Right Arrow） 39 						F3 114
+下箭头（Down Arrow） 40 							F4 115
+插入（Ins） 45 											F5 116
+删除（Del） 46 											F6 117
+左Windows键 91 											F7 118
+右Windows键 92 											F8 119
+上下文菜单键 93 											F9 120
+数字小键盘0 96 											F10 121
+
+【HTML5事件】
+contextmenue：右键菜单事件，若要禁用右键菜单
+使用方式：	非IE【document/window.addEventListener("contextmenu",function(event){event.preventDefault();});】
+					IE	【document/window.addEventListener("contextmenu",function(event){event.returnValue=false});】
+beforeunload：	当要离开页面，比如关闭/替换当前页面
+使用方式：	非IE【window.addEventListener("beforeunload",function(event){var message = "I'm really going to miss you if you go.";event.returnValue = message;return message;});】
+【触摸和手势】
+touchstart			手指触摸屏幕时触发（就算有手指已经触摸，也可触发），可冒泡
+touchend				手指离开屏幕时触发，可冒泡
+touchmove				手指在屏幕滑动时触发，可冒泡
+
+gesturestart：当一个手指已经按在屏幕上而另一个手指又触摸屏幕时触发
+gesturechange：当触摸屏幕的任何一个手指的位置发生变化时触发
+gestureend：当任何一个手指从屏幕上面移开时触发
+以上的所有事件都有event的如下属性
+bubbles、cancelable、 view、 clientX、 clientY、 screenX、 screenY、 detail、 altKey、 shiftKey、ctrlKey 和 metaKey
+【
+	除此之外：还有对手势特别的两个属性：rotation和scale
+	rotation：手指变化引起的旋转角度，负值表示逆时针旋转，正值表示顺时针旋转（该值从 0 开始）。
+	scale：两个手指间距离的变化情况（例如向内收缩会缩短距离）；这个值从 1 开始，并随距离拉大而增长，随距离缩短而减小
+】
+
+
+【性能和事件委托】
+
+提升性能：委托
+JavaScript原生事件委托：利用event.target
+demo：<ul>li1 li2 li3</ul> 每个li假设有独立的id
+可以在ul上绑定 dom_ul.addEventListener("click",function(event)
+{
+		然后利用event.target获取某个被点击的对象，因为点击li会冒泡到ul，从而触发click事件，而触发后再利用event.target触发。
+});
+
+这样做很明显只绑定一个对象，却可以触发很多，占内存极小
+提升性能：删除绑定，因为绑定就会消耗性能，所以在关闭页面时就应该取消绑定，从而释放内存
+经常出现的场景：移除某个Dom，或者某个Dom被替换；而这个dom是已经绑定的事件，因为就算被移除dom或替换dom都会导致绑定的事件没有被清除/或者页面被删除（跳转替换/关闭）
+1、btn.onclick = null; //移除事件处理程序
+2、绑定unload再结合上面的方式；即在关闭此页面的时候解除绑定
+3、在jQuery中也有unbind
+
+
+
+
+/--------------第18章 Ajax[XMLHttpRequest]--------------/
+[首先：JavaScript文件是单线程执行的，即某一时刻只能执行某行代码，而浏览器是多线程的；对于异步的ajax请求则是：浏览器单独开一个线程；
+即最少有两条线程：1是JavaScript文件内代码的执行；2是异步请求的线程；当请求回来后，插入事件队列让第一个线程逐个执行，这就是nodejs中的
+事件驱动，异步执行]
+Ajax
+
+常用方法属性：
+abort()                                 停止发送当前请求，而且xhr对象也不能再访问相应的属性，而且建议调用此方法后，xhr=null;,释放内存
+getAllResponseHeaders()                 获取服务器返回的所有响应头
+getAllResponseHeader("headerName")      获取某个响应头
+
+open("GET/POST","url",若请求的服务器有密码则写上用户名和密码,boolean是否异步)   建立连接，最后一个参数一般为true表示异步发送！
+setRequestHeader("头名","头值")          在open后，send前写入，请求头
+onreadystatechange                      状态发生变化时调用某函数
+send(请求内容/null)                      发送请求内容
+
+readyState===4                          0:xhr对象未完成初始化  1:xhr开始发送请求  2:对象的请求发送发成  3:对象开始读取服务器的响应  4：对象读取服务器响应结束
+status===200
+responseText                            响应服务器返回的响应文本
+responseXML                             响应服务器返回的XML文档
+
+var xhr;
+function createXMLHttpRequest()
+{
+    if(window.XMLHttpRequest)
+    {
+        xhr=new XMLHttpRequest();
+    }
+    else if(window.ActiveXObject)
+    {
+        try
+        {
+            xhr=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        catch(e)
+        {
+            alert("您的浏览器不支持ajax！");
+            return false;
+        }
+    }
+}
+或者：
+function createXHR()
+{
+		if (typeof XMLHttpRequest != "undefined"){
+				return new XMLHttpRequest();
+		}
+		else if (typeof ActiveXObject != "undefined")
+		{
+				if (typeof arguments.callee.activeXString != "string")
+				{
+					var versions = [ "MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0","MSXML2.XMLHttp"],
+					i, len;
+					for (i=0,len=versions.length; i < len; i++)
+					{
+							try
+							{
+									new ActiveXObject(versions[i]);
+									arguments.callee.activeXString = versions[i];
+									break;
+							}
+							catch (ex)
+							{
+								//跳过
+							}
+					}
+				}
+				return new ActiveXObject(arguments.callee.activeXString);
+		} 
+		else
+		{
+			throw new Error("No XHR object available.");
+		}
+}
+
+ajax步骤步骤：
+
+1、创建XMLHttpRequest对象
+2、onreadystatechange							
+3、open(请求方式，url,true)    		请求方式：POST GET		//此时并没有发送请求，仅仅是准备阶段
+4、setRequestHeader(请求的头)			如果真的用这个方法，必须放在open和send之间
+5、send(请求主体)         					对于get请求方式：请求主体如果没有则为必须为null
+
+响应部分：
+1、状态码：
+status       								200-成功；304-表示数据没有变化，可以利用浏览器缓存
+3、响应文本data
+responseText                响应主体
+4.
+onreadystatechange          利用此属性监控readyState属性的变化
+
+
+demo:
+function ajax(url, fnSucc, fnFaild){
+    //1.创建对象
+    var oAjax = null;
+    if(window.XMLHttpRequest){
+        oAjax = new XMLHttpRequest();
+    }else{
+        oAjax = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    //2.连接服务器
+    oAjax.open('GET', url, true);   //open(请求方式, url, 是否异步)
+
+    其实这里还可以加上：请求头：oAjax.setRequsetHeader("ContentType","text/plain;charset=UTF-8");
+    //3.对状态改变作出响应
+    oAjax.onreadystatechange = function(){  //OnReadyStateChange事件
+        if(oAjax.readyState == 4){  //4为完成
+            if(oAjax.status == 200){    //200为成功
+                fnSucc(oAjax.responseText)
+            }else{
+                if(fnFaild){
+                    fnFaild();
+                }
+            }
+        }
+    };
+    //4.发送请求
+    oAjax.send(null);
+}
+demo：一定封装的ajax
+ajax.js
+var xhr;
+function createXMLHttpRequest()
+{
+    此处为创建ajax对象
+}
+function processResponse(){
+    if(xhr.readyState===4)
+    {
+        if(xhr.status===200){
+
+        }
+    }
+}
+function getPrice()
+{
+    createXMLHttpRequest();//获得ajax对象
+    xhr.open("post",url,true);
+    xhr.onreadystatechange=processResponse;
+    xhr.send(null);
+
+}
+【readyState】
+0：未初始化。尚未调用 open()方法。
+1：启动。已经调用 open()方法，但尚未调用 send()方法。
+2：发送。已经调用 send()方法，但尚未接收到响应。
+3：接收。已经接收到部分响应数据。
+4：完成。已经接收到全部响应数据，而且已经可以在客户端使用了——【一般直接判断这个值就可以了】
+每次readyState值发生变化都会触发readystatechange事件，而且此事件必须在open方法前进行绑定
+
+而且建议：
+利用DOM0级绑定事件即：
+xhr.onreadystatechange=function(){}能够更好的兼容，而不用addEventListener();
+还有就是xhr.on……中不要用this来替代xhr，这样会发生错误
+var xhr = createXHR();
+xhr.onreadystatechange = function(){
+	if (xhr.readyState == 4){
+		if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304)
+		{
+			alert(xhr.responseText);//注意此处没有用this原因在于，在某些浏览器中会出现错误
+		} 
+		else 
+		{
+			alert("Request was unsuccessful: " + xhr.status);
+		}
+	}
+};
+xhr.open("get", "example.txt", true);
+xhr.send(null);
+
+【请求Get 和 Post】
+GET：必须在url后面增加?name1=value1&name2=vlaue2，而且必须用encodeURIComponent()进行编码
+function addURLParam(url, name, value) {
+		url += (url.indexOf("?") == -1 ? "?" : "&");
+		url += encodeURIComponent(name) + "=" + encodeURIComponent(value);
+		return url;
+}
+
+POST:在send(数据)方法中发送数据
+从性能来看：get速度比post消耗的资源低，速度更快（最大2倍）。
+
+【超时设定IE8+，后再在XHR2中也被添加进来】
+xhr.timeout=毫秒时间
+demo：
+			
+			var xhr = createXHR();
+			xhr.onreadystatechange = function(){
+					if (xhr.readyState == 4){
+						//为避免浏览器报告错误，可以将检查 status 属性的语句封装在一个 try-catch 语句当中
+						try {
+									if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304){
+											alert(xhr.responseText);
+									} 
+									else {
+											alert("Request was unsuccessful: " + xhr.status);
+									}
+						} 
+						catch (ex){
+									//假设由 ontimeout 事件处理程序处理
+						}
+					}
+			};
+			xhr.open("get", "timeout.php", true);
+			xhr.timeout = 1000; //将超时设置为 1 秒钟（仅适用于 IE8+，XHR2）
+			xhr.ontimeout = function(){
+					alert("Request did not return in a second.");
+			};
+			xhr.send(null);
+
+【进度事件】
+loadstart：在接收到响应数据的第一个字节时触发。
+progress：在接收响应期间持续不断地触发。
+error：在请求发生错误时触发。
+abort：在因为调用 abort()方法而终止连接时触发。
+load：在接收到完整的响应数据时触发。
+loadend：在通信完成或者触发 error、 abort 或 load 事件后触发。
+
+load事件：响应完毕就会触发，所以不用onreadeStateChange
+					xhr.onload=function(event){//event.target指向xhr}
+DEMO：
+					var xhr = createXHR();
+					xhr.onload = function(){
+							if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304){
+									alert(xhr.responseText);
+							} else {
+									alert("Request was unsuccessful: " + xhr.status);
+							}
+					};
+					xhr.open("get", "altevents.php", true);
+					xhr.send(null);
+					
+process事件：会在浏览器接收数据期间周期性触发，其中event包括三个属性：lengthComputable、 position 和 totalSize
+--lengthComputable		判断进度信息是否可用的boolean值
+--position						已获得数据的字节量
+--totalSize						预期字节数
+
+demo:
+				var xhr = createXHR();
+				xhr.onload = function(event){
+						if ((xhr.status >= 200 && xhr.status < 300) ||
+								xhr.status == 304){
+								alert(xhr.responseText);
+						} else {
+								alert("Request was unsuccessful: " + xhr.status);
+						}
+				};
+				xhr.onprogress = function(event){
+						var divStatus = document.getElementById("status");
+						if (event.lengthComputable){
+								divStatus.innerHTML = "Received " + event.position + " of " +
+								event.totalSize +" bytes";
+						}
+				};
+				xhr.open("get", "altevents.php", true);
+				xhr.send(null);
+
+原生跨浏览器问题：
+1.1、IE7及其以上版本中支持原生的 XHR 对象，因此可以直接用： var oAjax = new XMLHttpRequest();
+
+1.2、IE6及其之前的版本中，XHR对象是通过MSXML库中的一个ActiveX对象实现的。有的书中细化了IE中此类对象的三种不同版本，即MSXML2.XMLHttp、MSXML2.XMLHttp.3.0 和 MSXML2.XMLHttp.6.0；
+     个人感觉太麻烦，可以直接使用下面的语句创建： var oAjax=new ActiveXObject('Microsoft.XMLHTTP');
+
+【JSONP-Json width padding】
+定义回调函数
+function handleResponse(response){
+		alert("You’ re at IP address " + response.ip + ", which is in " +
+		response.city + ", " + response.region_name);
+}
+var script = document.createElement("script");
+script.src = "http://freegeoip.net/json/?callback=handleResponse";
+document.body.insertBefore(script, document.body.firstChild);
+
+
+/--------------第20章 离线应用与客户端存储--------------/
+【离线应用】
+1、属性：navigator.onLine		判断该设备是否能够上网，返回true或者false[IE6+以及高级版本浏览器都支持]
+	if(navigator.onLine){
+		在线代码
+	}
+	else{
+		离线代码
+	}
+2、事件：online/offline			只能通过window对象去绑定事件，建议利用属性判断是否在线，然后再去绑定这个事件
+
+【Cookie，所谓一个cookie就是一条name-value】
+1、cookie不区分大小写，但是建议还是按照变量名正常命名
+2、获取所有cookie key-value对儿
+	document.cooke===>name1=value1;name2=value2……，但是由于都是通过enCodeURIComponent()编码了，所以需要deCodeURIComponent来解码
+3、创建一个cookie
+document.cookie="name1=value1;" 	创建了一个名字叫	name1的cookie，值为value1，不要被"name"所迷惑,
+																	name不是一个如保留字的东西，就是字符串 name1=value1就是一个名字叫name1的cookie
+																	注意不论是name还是value都要用enCodeURIComponent()进行编码
+
+eg:  var cookieObj={};
+     var allCookie=document.cookie;
+     //用分号和空格分割cookie字符串，返回数组["key1=value1","key2=value2"……]
+     var list=allCookie.split("; ");
+     for(var i=0;i<list.length;i++)
+     {
+        var cookie=list[i];
+        var cut=cookie.indexOf("=");
+        var key=cookie.slice(0,cut);
+        var value=cookie.slice(cut+1)
+        value=decodeURIComponent(value);
+        cookieObj[key]=value;
+     }
+     return cookieObj;//返回保存了cookie的对象
+ 
+4、删除cookie
+		事实上没有真正的方法，只能通过设置相同的name来覆盖原来的cookie，然后将时间设置为过去的时间，就会删除此条cookie
+		
+		       
+【localStorage/sessionStorage】
+到目前为止：这两个对象还仅仅支持“字符串”类型额存储和读取，如果不是字符串的数据，最好是显示转换，再存储，如果直接存储也会被转换为String；
+取出数据应当注意到：取出数据时应当进行相应的类型转换
+
+localStorage:     		时间是永久的，除非删除：
+                  		范围是在文档源级别：文档源是由——协议+主机名+端口三者决定的；只有具有相同文档源的localStorage才能相互访问；
+                  		另一个限制是浏览器：不同浏览器无法相互访问
+
+sessionStorage:   		范围同上，还要加上：窗口级别，即关闭窗口（选项卡）数据就会消失，而且不同的选项卡也无法互相访问（哪怕是同一个页面，
+											同一个脚本只是在不同选项卡中；但同一个选项卡有iframe是可以访问的）；
+
+同源机制：相同协议+相同的主机名+相同的端口
+eg：http://www.abc.com
+    https://www.abc.com   不同协议
+    http://www.abcd.com   不同主机名
+    http://www.abc.com:8000  不同端口
+以上四个域名无法共享localStorage/sessionStorage对象中的数据无法共享或者覆盖
+
+
+
+localStorage.key/localStorage[key]  访问，也可以设置
+setItem("name1"，value1)   		设置一条name-value对；localStorage.setItem("name1","value1");
+getItem("name1")							根据name值或获取值===>localStorage.getItem("name1"); ===>value1
+key(index)										获取指定位置的值的name：即 localStorage.key(0); ===>name1，即返回的是name的字符串，不是它的value
+removeItem("name1")    				移除名字为name的 key-value对
+clear()               				全部删除
+
+eg：for(var i=0;i<localStorage.length;i++)
+{
+    var keyName=localStorage.key(i);
+    var value=localStorage.getItem(keyName);
+}
+    localStorage.length:返回key-value对的个数
+注意：如果存储的是数组，对象等这类可变的，则存储的只是副本，修改元对象不会改变存储在localStorage中的对象
+navigator.cookieEnabled     判断浏览器是否支持cookie
+navigator.online            判断浏览器是否在线
+[global函数]encodeURIComponent(String)           	对所有字符进行编码，都是由一个或多个十六进制的转义序列替换的。
+[global函数]decodeURIComponent(str)              和下面的方法一致，就是对字符串进行解码
+
+[global函数]encodeURI(string)                    该方法不会对 ASCII 字母和数字进行编码，也不会对这些 ASCII 标点符号进行编码： - _ . ! ~ * ' ( ) 。
+                                     							encodeURI() 函数是不会对如下进行转义的：;/?:@&=+$,#
+[global函数]decodeURI(str)
+
+
+
+/*------------------------------高级技巧--------------------------------*/
+1、禁止扩展对象
+因为JavaScript中的对象是可以动态扩展的，即var obj={"a":1};obj.b=2;此时扩展了obj对象的b属性
+--但如果增加
+Object.preventExtensions(obj);则无法/有效的动态添加新属性；在严格模式下，运行obj.b会报错，但非严格模式不会，可以运行但不会抛出错误，也不会添加成功
+Object.istExtensible(obj)；				此方法用来判定对象是否可以扩展，返回boolean值
+
+2、密封对象【不能扩展，也不能删除某属性】
+Object.seal(obj);
+Object.isSealed()
+
+3、冻结对象【不能扩展，不能改，也不能删除某属性】，[Writable]特性会被设置为 false
+Object.freeze(obj);
+Object.isFrozen()
+
+4、高级定时器
+（1）setTimeout(function()
+{
+	var div = document.getElementById("myDiv");
+	left = parseInt(div.style.left) + 5;
+	div.style.left = left + "px";
+	if (left < 200)
+	{
+		setTimeout(arguments.callee, 50);//尤其是这句
+	}
+}, 50);
+（2）分割数据加载，也用定时器，即分组数据加载，速度更快，尤其是对 同步加载的
+
+5、作用域安全的构造函数
+这个demo意思是说：如果一不小心直接运行一个构造函数就会将其附加在window对象上，从而发生意外的问题，
+通过首先判断this的类型是否是Person的实例，如果不是则返回一个新的Person实例并传入参数
+function Person(name, age, job){
+		if (this instanceof Person){
+				this.name = name;
+				this.age = age;
+				this.job = job;
+		} 
+		else {
+				return new Person(name, age, job);
+		}
+}
+
+6、惰性载入函数
+demo1：缺点是每次运行都要判断
+function createXHR(){
+	if(条件1){
+		根据条件1返回ajax对象
+	}
+	else{
+		根据条件2返回ajax对象
+	}
+}
+
+demo2：	很明显最后一行代码返回的是新的函数，这样在第二次的时候因为之前的createXHR已经被替换掉，
+				所以第二次执行的时候不会进行判断而是，而直接运行“被覆盖”的createXHR函数
+function createXHR(){
+	if(条件1){
+		createXHR=function(){
+			根据条件1返回ajax对象
+		}
+	}
+	else{
+		createXHR=function(){
+			根据条件1返回ajax对象
+		}
+	}
+	return createXHR();
+}
+/*------------------------------最佳实践--------------------------------*/
+【可维护性】
+（1）容易理解——不需要解释，一看就懂
+（2）可适应性——当数据变化时，几乎不需要重写方法
+（3）可扩展性——在架构上是很容易对未来可能的功能进行扩展的
+（4）可调式性——一旦代码出错，很容易给出足够的信息
+
+【变量约定】
+1、变量名应该为名词：car，person
+2、函数名应该以动词开始：getName()；若是返回布尔值则以is开始：isEnable();
+3、变量名不用担心长度，因为后期可以压缩
+4、变量类型必须透明：意思是说，当你在声明一个变量的时候应该赋给一个恰当的默认类型变量值
+	demo：var found=false;		明显这个是布尔值
+				var count=-1;			明显这个是数值型
+5、常量用全大写字母和下划线_连接
+
+【松耦合】
+1、修改css样式的，建议以修改“类名”为主，而不是在js中直接修改css样式！因为看样式应该只看css文件，即css的改动应该是以css为主
+2、事件的触发，和事件的业务逻辑要分开：最好的业务逻辑是不依赖于事件，而只关注传入的参数，然后处理参数
+
+【对象问题】
+1、不要随意修改系统默认的类中的方法，函数；比如Date类对象，Math，window
+2、避免全局变量(最起码要减少)
+demo：    var x=5;var fun=function(){}  ————>  var obj={"x":5,"fun":function(){}}
+3、不要直接与null比较！
+如果是引用类型(对象)：obj instanceof 类名 ；
+如果是基本类型            : typeof x
+
+4、避免全局查找：比如有在函数中多处需要用document对象，此时可以把document对象赋给一个局部变量，从而提高性能
+
+【提升算法速度】
+赋值，访问数组中的元素都记为 O(1)
+1、避免不必要的属性查找：obj.name.x.y.z;这种查找的算法复杂度：为O(4)，即有四个点的搜索过程
+2、优化循环
+(1)进行减值迭代，道理在于for(var i=0;i<=data.length;i++)；如果这么写会导致每次循环都会调用data.length,造成O(n)的性能开销，如果做减法for (var i=values.length -1; i >= 0; i--)，明显就调用了一次；
+但是，其实可以将此次调用赋给一个变量，这样，性能也很好而且，也可以用增值法；当然这种方式也会造成一次开销，因为还要一个变量的“搭桥”，不过可以忽略了
+(2)减少循环体，即尽量减少，或者优化循环的代码，比如如果每次循环都插入一个dom，开销很大，不如一次连接多个字符串，插入一次dom
+(3)优化终止条件，同(1)相似，每次循环都要判断终止条件，所以终止条件要尽量避免算法开销!
+(4)展开循环：即如果循环的次数是完全确定的（比如一次就是10个），那么完全可以抛弃for等循环嵌套，只用 data[0……9]这种形式
+(5)用原生方法较快，即如果某个功能JavaScript自带，不用通过源码去模拟相同的功能，因为原生的是用C/C++编译的
+(6)如果能用switch来替换if-else最好，而且要安装从“最可能到最不可能”的顺序排列
+(7)利用位运算符，来替换布尔，算数运算
+(8)多个声明语句合成一句：
+demo：
+			var x=1;var y=2;var z=3;====>var x=1,y=2,z=3;性能提升很多
+(9)迭代值整合：比如i++，i--之类
+demo：
+      var x=process(i);i++;====>var x=process(i++);
+(10)使用对象字面量(类似JSON)/数组结构
+demo：
+			//用 4 个语句创建和初始化对象——浪费
+			var person = new Object();
+			person.name = "Nicholas";
+			person.age = 29;
+			person.sayName = function(){
+				alert(this.name);
+			};
+			//只用一条语句创建和初始化对象
+			var person = {
+				name : "Nicholas",
+				age : 29,
+				sayName : function(){
+					alert(this.name);
+				}
+			};
+/*------------------------------HTML5——API--------------------------------*/
+
+【地理位置】
+navigator.geolocation:返回一个对象，此对象可以调用如下方法：
+navigator.geolocation.getCurrentPosition(回调函数)                 获取用户当前位置
+var watch=navigator.geolocation.watchPosition()            获取当前位置，同时不断监视当前位置，一旦改变则调用指定的回调函数
+navigator.geolocation.clearPosition(watch)                 停止监视用户位置
+eg：
+navigator.geolocation.getCurrentPosition(function(pos)
+    {
+        var x=pos.coords.latitude;//获取经度
+        var y=pos.coords.longitude;//获取纬度
+        alert("地理位置是：X："+x+",Y:"+y);
+    }
+);
+
+
+
+
+【历史记录管理】
+location.hash               获取url的一个id，一种标识符
+eg:http://www.iqiyi.com/zongyi/20110430/f47e601752207ca6.html#vfrm=13-0-0-1
+location.hash->"vfrm=13-0-0-1"
+如果设置其值：location.hash="lihonglei"->eg:http://www.iqiyi.com/zongyi/20110430/f47e601752207ca6.html#lihonglei而且原来“灰色”的后退按钮会变成可点击的。
+其它请看原书
+
+
+
+
+跨域消息传递：
+targetWindow.postMessage(message,targetOrigin)
+onMessage             事件的监听属性,比如：window.onMessage=function(event){}
+                      event可以调用如下属性：
+                        data：返回消息传递信息
+                        origin:返回发送此消息的原域名
+                        lastEventId:返回发送该消息的原id
+                        source：返回发送该消息的窗口对象
+eg:来自《疯狂》p465/466
+
+原页面：
+<script>
+    var send=function()
+    {
+        疑惑：获取目标window对象一定要打开新窗口吗
+        var targetWin=window.open("目标URL","_blank/_self","width=400,height=300");//获取目标窗口window对象
+        targetWin.onload=function()//加载好打开的页面后触发“发送消息”
+        {
+            targetWin.postMessage("sourceMessage","目标url");
+        }
+        window.onmessage=function(event)
+        {
+            if(event.origin!=="目标域名")
+            {
+                return;
+            }
+            alert("此页面接收的信息是："event.data);
+        }
+    }
+    触发send：
+</script>
+目标页面：
+<script>
+        window.onmessage=function(event)
+        {
+            if(event.origin!=="目标域名")
+            {
+                return;
+            }
+            alert("此页面接收的信息是："event.data);
+            event.source.postMessage("回传原页面的信息",event.origin);
+        }
+</script>
+
+
+
+【File FileReader】
+File:对读取文件的input  type=file进行除了，一个File对象file就对应一个文件
+file对象有如下只读属性：
+--name：本地文件系统中的文件名。
+--size：文件的字节大小。
+--type：字符串，文件的 MIME 类型。
+--lastModifiedDate：字符串，文件上一次被修改的时间（只有 Chrome 实现了这个属性）
+
+files：是dom对象的一个属性，返回的是一组file，即dom.files[i]
+demo：
+var files = EventUtil.getTarget(event).files,
+i = 0,
+len = files.length;
+while (i < len){
+	console.log(files[i].name + " (" + files[i].type + ", " + files[i].size +" bytes) ");
+	i++;
+}
+
+
+FileReader：顾名思义是读取文件时用的一种技术，和XHR一样是异步的！
+--readAsText(file,encoding)：以纯文本形式读取文件，将读取到的文本保存在 result 属性中。第二个参数用于指定编码类型，是可选的。
+--readAsDataURL(file)：读取文件并将文件以数据 URI 的形式保存在 reader.result 属性中。
+--readAsBinaryString(file)：读取文件并将一个字符串保存在 reader.result 属性中，字符串中的每个字符表示一字节。
+--readAsArrayBuffer(file)：读取文件并将一个包含文件内容的 ArrayBuffer 保存在reader.result 属性中
+
+上面函数可以触发3个回调事件函数：
+--onload				reader.onload=function(){……}；成功读取完整个文件    reader.result
+--onprogress		reader.onprogress=function(){……}；是否又读取了新数据
+--onerror				reader.onerror=function(){……}；读取文件失败			reader.error.code保存错误文本
+
+demo：
+1、获取某个<input type="file">dom节点 fileDom
+2、获取files对象：var files=dom.files;上面说过，files可能只有一个，也可能有多个文件被提交了；若未选择则files[i]为undefined
+3、初始化FileReader对象：var reader=new FileReader();
+4、将某个file对象绑定在reader对象上，利用以上四个方法之一；reader.readAsDataURL(files[i]) ，此时会触发那3个回调事件函数
+5、通过那三个事件函数获取reader.result值，这个才是我们最想要的
+
+【Web worker】
+多线程Worker：（注：多线程是可以双向通信的，不是非得只能线程文件发送数据给主体，主体也可以发送数据给线程）
+var line=new Worker("javascriptUrl");
+此对象可以有如下方法/属性：
+onmessage事件监听：                     line.onmessage=function(event){event.data……}   获取数据
+postMessage(data)                      line.postMessage(data);                        发送数据到某url
+importScripts(urls)                    导入多个js文件：line.importScript("a.js","b.js","c.js")
+sessionStorage/localStorage
+Worker                                 创建嵌套线程(1、在前台界面创建嵌套线程；比如在onmessage中创建。2、在后台线程onmessage中再次创建线程)
+XMLHttpRequest                         异步请求
+location                               和window.location
+通用的函数                              isNaN() parseInt等
+eg：
+a.js
+<script>
+    var b=new Worker("b.js");
+    b.postMessage(data);//传递个b.js文件的数据
+    b.onmessage=function(event)
+    {
+        data_b=event.data
+    }
+</script>
+
+b.js
+<script>
+    onmessage=function(event)//b.js获得数据
+    {
+        var new_data=event.data;
+        ………………处理数据
+        postMessage(new_data);//再次发送给a.js
+    }
+</script>
+
+但其实看李刚的书中第一个例子：主线程没有用postMessage(data)传递数据，new线程后仅仅是onmessage(event)来接收数据，而线程中用postMessage(data),上面的例子是双向通讯
+
+
+
+
+
+webSocket：Websocket
+
+          1.websocket是什么？
+          WebSocket是为解决客户端与服务端实时通信而产生的技术。其本质是先通过HTTP/HTTPS协议进行握手后创建一个用于交换数据的TCP连接，
+          此后服务端与客户端通过此TCP连接进行实时通信。
+
+          2.websocket的优点
+          以前我们实现推送技术，用的都是轮询，在特点的时间间隔有浏览器自动发出请求，将服务器的消息主动的拉回来，在这种情况下，我们需要不断的向服务器 发送请求，
+          然而HTTP request 的header是非常长的，里面包含的数据可能只是一个很小的值，这样会占用很多的带宽和服务器资源。会占用大量的带宽和服务器资源。
+          WebSocket API最伟大之处在于服务器和客户端可以在给定的时间范围内的任意时刻，相互推送信息。在建立连接之后，服务器可以主动传送数据给客户端。
+          此外，服务器与客户端之间交换的标头信息很小。
+          WebSocket并不限于以Ajax(或XHR)方式通信，因为Ajax技术需要客户端发起请求，而WebSocket服务器和客户端可以彼此相互推送信息；
+方法：
+webSocket("服务器url")             创建：var ws=new webSocket("url");
+close();                          关闭socket
+send(data)                        向服务器发送数据
+
+监听事件：
+onopen                           当建立连接时触发
+onerror                          当建立连接出现错误时触发
+onclose                          当连接关闭时触发
+onmessage                        接收到服务器信息时触发：ws.onmessage=function(event){event.data}

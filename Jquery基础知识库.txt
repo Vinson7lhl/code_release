@@ -1,0 +1,796 @@
+
+$(function(){});//该程序是在页面仅仅加载完DOM树后即可执行，而不必非要等到加载完视频，音频，图片flash等资源
+jQuery.noConflict();//让$符号给其他库使用，eg:var jq=$.noConflict();将$符号改为jq去用jQuery
+(function($){})(jQuery);
+等价于：
+var fn = function($){....};
+fn(jQuery);//即直接运行此函数
+
+jQuery对象：不是数组，是特殊的jQuery封装好的类数组对象；比如var a=$(".site-hd0");a instanceof Array;返回false
+DOM对象：也不是数组，同样也是一种类数组的封装
+typeof(document.getElementsByTagName("body"));
+"object"
+typeof($("body"));
+"object"
+
+/*-----------------------------第一章：选择器------------------------------*/
+
+【$("selector选择器","环境的上下文（范围）");】
+
+--基础选择器--
+*                    匹配所有元素$("*")
+E                    匹配标签为E的元素  $("div")
+E F                  匹配标签为F，且F为E的子元素节点[子孙] $("div p")，找每一个div标签内所有p标签
+E>F                  匹配标签为F，且F为E的直接子元素节点[亲儿子] $("div>p"),找每一个div中一级儿子p标签
+
+E+F                  匹配标签为F，且F为E后面的第一个兄弟节点(很实用，当<li>标签左侧浮动margin-left:时候经常出现第一个元素也要margin-left:非常不好调，
+										  而此选择器可以跳过第一个，demo:li+li{margin-left:10px}，指每一个li标签后面的第一个兄弟li都会+10px距离，但对第一个li就不会增加margin-left！)
+E~F                  匹配标签为F，且F为E后面的兄弟节点之一
+
+E.C                  匹配E标签，且E拥有特性class="C"的节点，若省略E等价于：$(".C")  <E class="C"></C>
+E#I                  匹配E标签，且E拥有特性id="I"的节点，若省略E等价于：$("#I") <E id="I"></E>
+[A……]                直接操作特性值。demo：$("[page-num]")，查找具有page-num特性的元素
+E[A]                 匹配拥有特性A的E元素：form[method],匹配了拥有method特性的form表单
+E[A=V]               匹配拥有特性A且值为V的E标签：$("input[type='text']")，匹配了type 为text的input标签
+E[A^=V]              同上，但是A的特性值以V开头
+E[A$=V]              同上，但是A的特性值以V结尾
+E[A!=V]              同上，但是A的特性值不等于V、或者说根本就不存在A特性
+E[A*=V]              同上，但是A的特性值包含V
+
+:first               匹配上下文中的第一个元素：li:first  匹配的是页面中（上下文）所有<li>标签中的第一个<li>
+:last                同上，但是是最后一个元素
+:even                返回偶数元素。li:even 返回页面中所有<li>的偶数项(从0计数的！！！0 2 4 6 8)
+:odd                 同上，返回奇数项
+:eq(n)               匹配第n个元素（注意：和nth:child(n)不同，它是匹配自身，nth:child(n)是先匹配父级然后再查找它的子集，后面有相应的eq()方法和这个功能一样,从0计数）
+:gt(n)               匹配第n个元素之后的元素（不包含第n个）
+:lt(n)               匹配第n个元素之前的元素（不包含第n个）
+
+--通过位置/兄弟节点选择（css过滤器,纯css可以用）--
+
+:first-child         	匹配自身的父级元素中的第一个元素，demo：li:first-child,会匹配li标签的父级<ul>中的第一个<li>,而不是页面中所有<li>的第一个(那是:first)
+:last-child          	同上，它是匹配父元素中的元素，但返回的是最后一个子节点
+:nth-child(n)        	同上，它是匹配父元素中的元素，但返回第N个子节点 li:nth-child(2),返回每个<ul>标签的第2个li标签（只有他是从1开始计数的）
+                  		注意：li:nth-child(n)并不是只会匹配<li>标签，而是<li>父级中的第n个节点，而这个节点是不是li，不一定的。
+                  		比如：	<div>
+                              <p class="thisP"></p>
+                              <div class="thisDiv"></div>
+                              <p></p>
+                            </div>
+                			如果写：.thisP:nth-child(2)不是返回第二个<p>而是父级节点中的第二个子节点，即.thisDiv!!!
+:nth-child(even|odd) 	同上，它是匹配父元素中的元素，但返回对应的奇数/偶数子节点
+:nth-child(Xn+Y)     	同上，它是匹配父元素中的元素，但返回经过计算后的节点（n从0开始）；3n（能被3整除）   5n+1等
+
+【jQuery自定义过滤器(只是jQuery可以用,css不可用)】
+
+:animated            	选择处于动画状态的元素；eg：某个div用animate({css},1000,callback);那就可以让此div发生样式变化
+:button              	选择按钮元素(input[type="submit"],input[type=reset],input[type=button],button)
+:checkbox            	选择复选框(input[type='checkbox'])type="button radio checkbox  hidden reset"
+:radio               	选择单选框(input[type='radio'])
+                        <label>选项1</label>    <input type="radio" name="radio_test" value="a1" checked="checked"|checked/><br>
+                        <label>选项2</label>    <input type="radio" name="radio_test" value="a2"/><br>
+                        <label>选项3</label>    <input type="radio" name="radio_test" value="a3"/><br>
+:checked             	选择处于选中状态的复选框/单选框
+                        <label多选1</label><input type="checkbox" name="checkbox_test" value="b1"/>
+                        <label多选2</label><input type="checkbox" name="checkbox_test" value="b2"/>
+                        <label多选3</label><input type="checkbox" name="checkbox_test" value="b3"/>
+:selected            	选择列表项中处于选中的<option>
+	                    <select>
+	                      <option value ="volvo" selected>Volvo</option>
+	                      <option value ="saab">Saab</option>
+	                      <option value="opel">Opel</option>
+	                      <option value="audi">Audi</option>
+	                    </select>
+
+:file                	选择文件输入元素(input[type='file'])
+:header              	选择标题元素<h1>到<h6>
+:password            	选择口令元素input[type='password']
+:reset               	选择重置按钮元素(input[type='reset']  button[type='reset'])
+:submit              	选择提交按钮元素(input[type='submit'] button[type='submit'])
+:text                	选择文本输入框元素(input[type='text'])
+
+:contains(food)      	选择包含文本food的元素（最好是直接的文本而不是子标签中的文本）,
+                     	$("p:contains(is)") 查找包含"is"字符串的<p>标签(注意：如果is字符串在p中的一个块级元素内是无法捕捉到的，如果在内联元素中，没问题)
+                			 把p标签中有is字符串的p标签背景颜色改变
+											eg：<p class="intro">My name<section>is</section> Donald</p>——无效
+											    <p class="intro">My name<span>is</span> Donald</p>——有效
+:has(selector)       	选择包含指定selector的父节点 $("p:has('span')")，意思是说找到包含span标签的p元素)
+:not(selector)       	选择不匹配selector的元素：eg:$("img:not([src*='dog'])")，是找出图片中src没有“dog”字符串的图片
+
+:disabled            	选择处于禁用状态的元素
+:enabled             	选择处于可用状态的元素
+
+:hidden              	选择隐藏元素(把透明度降低到0，也相当于隐藏)
+:visible             	选择可见元素
+
+
+
+
+/*----------------------------包装集相关常用方法--------------------------*/
+
+length属性                                       	返回的jQuery对象匹配的DOM元素的数量(原来可用size()方法，在1.8中删除，而且调用属性比方法开销要小)
+get(i[正/负]/不写参数)       	等价于$("li")[i]写法；i从0开始计数，若get()不写参数则返回由DOM节点组成的【数组】，若写参数(正数)返回指定的DOM对象（不是jQuery对象）,
+															负数则从后面数，eg：-1表示倒数第一个
+eq(i)                       	获取包装集中指定的某个jQuery对象(返回的是新的包装集);相当于：$($("li").get(0))===$("li").eq(0)
+first()                     	获取包装集中第一个元素(返回的是新的包装集);若原来的包装集为空，则返回空
+last()                      	获取包装集的最后一个元素(返回的是新的包装集);若原来的包装集为空，则返回空
+children(selector/不写)     		只找其子集(不会寻找其孙或者更后面的节点)
+toArray()                   	将包装集中的所有元素转换为DOM元素并封装为数组返回；和get(无参数)方法一样
+index(element)              	element:选择器/DOM元素/不写===($(this).index())    获取dom节点本身在“兄弟【这个兄弟不一定是同种类，如下例子】”节点中的位置；
+															若未找到，返回-1
+                            	注意：$("X").index("Y")，是从X范围开始查找的，
+                            	eg：
+                                <div></div>
+                                <p><p>
+                                <p id="x" class="active"><p>
+                                <p><p>
+                                <div></div>
+                                $("p").index(".active")——>1，范围锁定在 <p>标签上，所以active是相对p而言的
+                            		【点击某个类A，获取这个节点在类A中的位置：$(".A").index($(this))】
+                                $("#x").index()——>2   #x 的位置是相对所有兄弟节点而言的，因为index()中没有写范围
+
+
+add(expression,上下文)     		expresession(选择器|html元素|DOM元素、DOM数组)，
+                        			返回值：添加了expression的原始包装集的副本（并集）注意：add()仅仅是产生了包装集副本并没有改变DOM树
+															demo：$("img[alt]").add("img[title]"):在img有alt特性的包装集中增加img有title特性的元素
+															$("p").add("<div>aaa</div>"):正如上面所说的这里没有改变DOM树，仅仅是产生了改变的包装集副本（以后还可以回滚）
+
+slice[begin,end)              截取并返回新的包装集，[begin,end)不包含结尾，从0计数 
+                              eg:slice(2,3):获取新的由第三个元素组成的新包装集，若只有一个参数slice(4),就会获取从第5个开始到最后的所有节点
+
+
+【包装集过滤遍历 not filter find has each map】
+
+not(expression)             删除自身包装集种满足expression的节点(过滤本身)；相似的方式：$("选择器:not("选择器")")
+                            expression(选择器|html元素|DOM元素、DOM数组|函数)，返回值：创建副本，删除 与expression相匹配的元素
+                                                        若是函数not(function(index,当前dom)：则为调用者的每个元素调用，如果函数返回true则删除此包装集的节点，反之保留
+                            demo：
+                            $("img").not(function(index,当前dom)
+					                             {
+					                                 return $(this).hasClass("XXX");
+					                             });
+                                                         删除img中有类为XXX的img元素，并返回副本；$("img['title']").not("[title*='abc']");
+
+filter(expression)          保留自身包装集中满足expression(选择器|html元素|DOM元素、DOM数组|函数[如果函数返回true则保留])——和not()方法恰好相反，
+                                                        返回值：创建副本，保留 与expression相匹配的元素
+                                                        如果是函数：若返回true则保留，false则删除
+
+has(selector)               返回新的包装集，这个包装集包含了原始包装集中的“子节点”中匹配selector的包装集;selector:(选择器|dom元素);通过子元素过滤本身 
+                            eg：$("div").has("img[alt]")：返回了这样的div，它的子元素中有alt特性的img元素
+
+find(selector)							返回与原始包装集中传入的selector相匹配的所有子元素构成的新的包装集，它会搜索调用者包装集中每一个元素的“后代”（不包括本身）且匹配selector的元素
+				                   	demo:$(".A").find("li")结果是：除了.A 这个li标签，其他他的子所有<li>都被返回了，因为它是从本身的子集开始搜索的
+					                   <li class="A">
+					                         <ul>
+					                           <li>
+					                             <ul>
+					                               <li></li>
+					                             </ul>
+					                           <li>
+					                         </ul>
+					                      </li>
+map(callback(index,element))      返回新的包装集（由转换的值组成） 遍历包装集，为包装集中每一个元素调用callback函数，callback(index-0开始,DOM元素本身this)
+                                   eg:var allIds=$("div").map(function()
+                                   {
+                                     return (this.id==undfined?null:this.id)//将每一个元素的id值放入包装集中
+                                   }).get();//将新的转换好的包装集转为由dom构成的数组
+each(callback(index,element))     基本和map一致，但是有个地方不同：each()它不用生成返回值，即不会在回调函数中有return，它仅仅是处理了每一个对象，
+																	不像map会收集元素信息，然后把信息转为新的包装集
+
+																	【注意：在遍历中如果有return false;那么并不会中止遍历所在的函数或者触发的事件，终止的仅仅是本次循环】
+																	【注意】这里区别一下：filter(是对自己的一种过滤)；而find()则是自己的子节点)，
+																	demo：
+																	  <div></div>
+																	  <div class="middle"></div>
+																	  <div></div>
+
+																	$("div").css("background", "#c8ebcc").find(".middle").css("border-color", "red");
+																	结果是：.middle类没有被加上color，原因是：find是查找调用者包装集中每一个节点的子元素，它不会从自身开始查找，而是后代节点查找
+																	他的每一个div都没有“子”标签含有.middle；若换成filter则就会有效果；filter是针对自身包装集的元素
+
+
+is(selector)           						判断包装集中是否存在与传入的选择器表达式相匹配的元素，只要有一个满足就返回true/false
+																	demo：
+				                                <ul>
+				                                      <li><strong>list</strong> item 1 - one strong tag</li>
+				                                      <li><strong>list</strong> item <strong>2</strong> - two <span>strong tags</span></li>
+				                                      <li>list item 3</li>
+				                                </ul>
+				                                $("li").click(function() 
+				                                {
+				                                    //点击每一个li标签有如下判断
+				                                  	var $li = $(this),                   //获取被点击的li                                          
+				                                        isWithTwo = $li.is(function()        //isWithTwo函数判断被点击的<li>中是否有两个<strong>标签，并返回boolean值
+				                                        {
+				                                          return $('strong', this).length === 2;
+				                                        });
+				                                      if ( isWithTwo ){
+				                                        $li.css("background-color", "green");
+				                                      } else{
+				                                        $li.css("background-color", "red");
+				                                      }
+				                                });
+
+end()              								回滚到前一个包装集；这个方法主要是体现在链式编程中，回滚到调用end()的包装集的上一个包装集;
+																	demo:$("img").filter("[title]").hide().end();此时回滚到$("img")处
+
+【利用关系获取包装集】
+closest(selector)            		返回原始包装集中(查找从自己开始)每个元素上一级(一直向上找，直到满足)中满足selector的 最近 的父类节点；（一般用来寻找父级且满足的唯一节点）
+parent(selector|无参数)       		返回原始包装集元素的每个元素(查找的起点不包含自己)的"直接"父元素组成的包装集,如果父级没有满足的，则终止；
+parents(selector|无参数)      		返回原始包装集元素的每个元素(查找的起点不包含自己)的所有祖先元素组成的包装集(和上面的parent(),如果父级没有，就会依次向上找，一般不止找到一个)
+
+next(selector|无参数)       			返回原始包装集元素后面下一个同级元素(只是亲弟弟)组成的包装集  注意可能兄弟节点根本不是同一个标签
+																demo:  
+																			<p>Hello</p>
+																     	<p class="selected">Hello Again</p>
+																     	<div class="selected"><span>And Again</span></div>
+																			<script>
+																			  $("p").next(".selected").css("background", "yellow");//运行完后：会发现第二个p和最后一个div都变成黄色，
+																			</script>
+siblings(selector|无参数)   			返回的是同级的兄弟节点(不包含自己) 【注意可能兄弟节点不一定是同类型标签】
+
+
+
+
+/*-----------------------------第二章：操作特性、css、页面内容(DOM 结构)------------------------------*/
+
+对于HTML5：自定义特性方式是：data-才能被承认会通过官方认证   <div id="custom" data-custom_id="1"></div>
+对于HTML4：自定义特性虽然可用但是官方无法通过，且标记无效
+
+attr(name)         包装集获取名字为name的特性值：attr("id")
+attr(name,value)   包装集设置名字为name的值为value
+attr(json)         同时设置多个值：attr({"id":"value1","class":"value2"})
+removeAttr(name)   删除某个特性
+【
+    有趣的问题：
+    1、双重提交问题
+       $("form").submit(function(){
+         $(":submit",this).attr("disabled","disabled");
+         this指向form表单代表范围，也就是说:submit是在form中的submit
+       });
+    2、	enabled  和  disabled
+		       只要在按钮，表单啊等用了disabled，不用赋值，元素即会变为“不可用”状态，根据W3C正是由于disabled的存在（不是特性值）才使得元素被禁用，它是什么值根本无所谓
+		       哪怕是：attr("disabled","enabled")也是不起作用；
+		       解决方式：1-删除此特性，即removeAttr("disabled")
+		             2-利用jQuery将其值改为boolean值：$(":submit").attr("disabled",false);即可
+】
+addClass(字符串|函数)     				字符串：若有多个则以空格分割；若为函数function(index元素下标,当前节点){return "添加的类名"}，多次添加同一个类名无效即只会增加一个
+removeClass(字符串|函数)  				参数意义同上，与其相反，函数的返回值作为要删除的名称
+toggleClass(字符串|函数)  				参数意义同上，如果传入了类名不存在，则增加，如果有了，则删除
+hasClass(nameClass)      				判断某个包装集中的元素是否拥有nameClass参数传入的类名，返回true/false;(此方法和is()方法很相似，但是性能更好)
+
+
+css(name,value)                 name:css属性名字；value:字符串|数字|函数(index,css当前值)
+css(json对象)                   json对象{"name1":"value1","name2":"value2"}
+css(name)                       获取包装集中第一个元素的名字为：name的css属性的值。
+                              	【注意：此方法只会返回string类型的数据，所以对于原本是数字值的数据要特别小心，必须重新转换为数值-parseInt("数值字符串")】
+width|height(value|不写参数)    	不写参数就直接获取包装集中第一个的宽度/高度:单位：像素；value：可以是数字（默认以像素为单位），也可以是"100px""100em""50%"样子的字符串
+定位：
+offset()                     		返回一个对象，这个对象可以调用top，left两个属性，从而获得/设置相应的top值，和left值，单位px，这个值是相对于文档参照原
+position()                   		返回一个对象，这个对象可以调用top，left两个属性，从而获得/设置相应的top值，和left值，单位px，
+                            		这个值是相对于最近偏移父元素（应当有定位为relative或者position）为参照原的相对位置，所以不适合用在非定位状态的元素！
+                                eg：<div> 如果div用了padding：10px，则p的top偏移量为10px，即对于盒子模型而言p的position就是对外层的距离（并不是margin）
+                                        <p><p>
+                                    </div>
+【注意：这两个方法无法用在隐藏的块上面，同样padding margin border也一样】
+滚动：
+scrollLeft(Number值|不写值)   		设置|返回包装集中第一个元素的水平滚动偏移值(返回的是数值，传入的也是数值)，调用者本身应该有滚动条出现
+scrollTop(Number值|不写值)    		设置|返回包装集中第一个元素的垂直滚动偏移值
+
+
+操作内容：
+html()           获得包装集中第一个元素的所有html代码
+html(content)    content:字符串|函数function(index,当前元素内容)    若为函数：则为每一个包装集元素调用，返回值作为新的内容
+text()           将包装集中所有元素的文本连接起来，返回一个字符串文本，注意上面的可以得到标签，text()只能得到文本
+text(content)    同html(content)
+val()            针对表单，返回包装集中“第一个”元素的value值，注意：如果“第一个”元素是多选的，则返回数组
+val(values)      导致单选框/复选框/下拉的元素变为选中状态，只要传入的数组值和任意一个匹配即可
+【注意：html()和text()会替换原来的内容，所以要特别小心】
+
+append(字符串|DOM元素|jQuery对象|函数)       A.append(B),把B增加到A内容的尾部，若A有多个元素，则B先是复制然后移动，若A只有一个则直接移动B；而B若是源文档中的，则源文档中的B必被删除
+prepend(字符串|DOM元素|jQuery对象|函数)      把B放在A内容的前面,其他同上
+appendTo(字符串|DOM元素|jQuery对象)          A.append(B)===B.appendTo(A)
+prependTo(字符串|DOM元素|jQuery对象)         A.prepend(B)===B.prependTo(A)
+
+before(字符串|DOM元素|jQuery对象|函数)   			A.before(B) 把B当做A的兄弟节点放在A的前面(不是内容前面)
+after(字符串|DOM元素|jQuery对象|函数)    			A.after(B) 把B当做A的兄弟节点放在A的后面(不是内容前面)
+insertBefore(字符串|DOM元素)      						A.before(B)===B.insertBefore(A)
+insertAfter(字符串|DOM元素)       						A.after(B)===B.insertAfter(A)
+
+detach(不写||selector)         							删除包装集节点，但它和remove不同之处是会保留删除的jQuery对象(返回值)，合适的时候可以再恢复，且保留数据和事件(建议用这个)
+demo：<body>
+      <p>Hello</p>
+          how are
+      <p>you?</p>
+      <button>Attach/detach paragraphs</button>
+        <script>
+            $("p").click(function(){
+              $(this).toggleClass("off");
+            });
+            var p;
+            $("button").click(function(){
+              if ( p ) {
+                p.appendTo("body");
+                p = null;
+              } else {
+                p = $("p").detach();
+              }
+            });
+    </script>
+    </body>
+    
+remove(不写||selector)         							从页面DOM中删除包装集中的所有元素（且删除绑定在其上的数据和事件），若添加参数selector，则可以进一步过滤；
+																						返回值：删除的包装集
+empty()                              				会删除包装集中所有子节点（且删除绑定在其上的数据和事件）(如果仅有文本也会删除)
+clone(boolean)                       				复制调用的包装集，并返回此包装集，参数若为false/不写，则不复制事件处理器;一般的用法是复制后再附加到页面的某个dom节点
+replaceWidth(字符串|DOM|jQuery对象|函数)     替换每一个包装集中的元素(如果是$("p").replaceWidth($("span"))中<span>是已经存在的，则span会被移动而不是复制！);
+                                                                                        返回值：被移除的包装集(不是替换的包装集)
+                                            $("p").replaceWith("<b>Hello world!</b>");
+                                            <p>This is a paragraph.</p>
+                                            <p>This is another paragraph.</p>
+                                         		变为：    <b>Hello world!</b>
+                                                    <b>Hello world!</b>
+replaceAll(字符串|DOM|jQuery对象)            A.replaceAll(B),是A替换B，和上面的刚好相反;(A和B都是DOM节点，不是字符串)
+
+
+
+
+
+/*-----------------------------第三章：事件------------------------------*/
+
+1、对于所有的事件都会传入一个event参数，但是IE比较特别：需要首先判断浏览器是否支持event然后把保存在全局变量中的event的IE的event取出来；
+if(!event)
+{
+      event=window.event;//或者var event =event||window.event;
+}
+
+获取按键码：event.keyCode || event.which(jquery) || event.charCode 针对不同的浏览器获取按键码
+回车键是：13
+2、冒泡问题：但我们触发任意一个节点的事件（click，hover……），那么事件并没有仅仅在触发的地方发生了，而是沿着它的父类继续向上层触发，如果父类有同样的事件就会被触发
+注意：仅仅是触发父类而不是，兄弟节点！！！
+3、结束事件：常用的方法是对于触发的事件：return false;
+
+
+on(event,data,function(event|不写){})        event:(string)事件名称，可以以空格分割多个事件，从而绑定多个事件
+                                             data:(对象)用来附件在event上
+                                             函数：默认会传入event参数
+on(JSON表达式)                               同时绑定多个不同的事件eg:{"click":function(event){},"mouseenter":function(){}}
+
+可以绑定的事件列表：
+                    blur                focusin                  mousedown                   mouseup
+                    change[下拉，多选，单选]              focusout                 mouseenter                  ready
+                    click               keydown                  mouseleave                  resize
+                    dbclick             keypress                 mousemove                   scroll
+                    error               keyup                    mouseout                    select
+                    focus               load                     mouseover                   submit
+                                        unload
+                                        增加：cut copy paste
+                                        input(针对IE外的浏览器，且只针对value值变化才会触发)
+                                        propertychange(主要是针对IE浏览器的)
+
+【浏览器事件】
+error()/1.8弃用/                        当元素遇到错误（没有正确载入）时，发生 error 事件;【注意：此方法一般是依赖HTTP请求的，即本地测试(file://)会无效】
+                                        demo：$("img").error(function(e){}).attr("src","error.png");【注意：“错误函数”必须在“处理函数”之后，即error()需要在attr()之前执行】
+resize()                                当调整对象尺寸时发生，常用于$(window)
+		                                    demo：$(window).resize( function(){
+		                                        alert("不建议调整窗口大小!");
+		                                    } );	                                    
+scroll()                                页面滚动时触发：常用$(window).on("scroll")//.scroll(function(){});
+
+【文档加载事件】
+load()/1.8弃用/                        	当元素被完全加载完成后就会触发，建议放在.ready()中，因为：.ready()会在DOM准备好就会执行，而load()则是完全载入
+unload()                                当离开某个页面时(包括重新加载页面时也会触发)，会触发此事件
+【绑定事件的处理器】
+on(event,selector,data,Fun(event)||false)        event:绑定的事件;selector:过滤的选择器;data：通过触发函数的event.data调用来使用，可以是任意数据
+【
+	注意：selector写和不写的区别：
+	1、如果不写那么触发事件的就是调用的对象——叫做直接事件;相反如果写入了selector——叫做委派事件 
+	2、当处于“委派事件”状态下，调用者/绑定者不会去触发事件，只有当selector被匹配到的时候才会触发,而且处于委派事件状态下可以匹配“未来”元素，即动态增加的DOM元素时
+	(指的是selector增加时)，这个新增加的DOM依旧可以绑定事件而不用live()方法;
+	3：性能差别：假设<div><p></p>此处1000个p标签</div>：(1)$("div p").on("click")——一次绑会为1000个元素绑定事件  (2)$("div").on("click","p");仅仅是绑定了1个元素
+】
+【手动触发】
+trigger(event/自定义的,[参数])						手动触发事件
+triggerHandler(同上)											和trigger不同之处
+																				.triggerHandler() 方法并不会触发事件的默认行为。(例如，表单提交)。
+																				.trigger() 会影响所有与 jQuery 对象相匹配的元素，而 .triggerHandler() 仅影响第一个匹配到的元素。
+																				使用 .triggerHandler() 创建的事件，并不会在 DOM 树中向上冒泡。如果事件没有被目标元素直接处理，那么它就不会进行任何处理。
+																				与普通的方法返回 jQuery 对象(这样就能够使用链式用法)相反，.triggerHandler() 返回最后一个处理的事件的返回值。如果没有触发任何事件，会返回 undefined。
+尤其是第一点尤为重要：
+demo：
+<body>
+  <button id="old">.trigger("focus")</button>
+<button id="new">.triggerHandler("focus")</button><br/><br/>
+ 
+<input type="text" value="To Be Focused"/>
+<script> 
+				$("#old").click(function(){
+						//input标签会获取焦点（即会触发浏览器本来的focus行为）且会执行focus事件的回调函数
+						$("input").trigger("focus");
+				});
+				$("#new").click(function(){
+						//不会获取input的的focus的焦点，只会执行focus绑定的回调函数
+						$("input").triggerHandler("focus");
+				});
+				$("input").focus(function(){
+						$("<span>Focused!</span>").appendTo("body").fadeOut(1000);
+				});
+</script>
+</body>
+
+blur():          	某个表单元素失去焦点时触发的事件
+focusin():       	<div><input ……></div>如果div标签内的inpu获得焦点，$("div").focusin(function(){}那么div就会触发focusin;对于focus而言，他只针对自身是否获得焦点
+focusout():      	<div><input ……></div>如果div标签内的inpu失去焦点，那么div就会触发focusout;
+mousedown():     	当“按下”鼠标按钮（不是点击click，只是按下）触发的事件;
+mouseup():       	和mousedown相反是“松开鼠标”时触发的事件;
+keypress():      	与keydown非常像，都是按下按钮就触发事件
+change():        	当改变某个元素的值时就会触发，注意：该事件仅适用于文本域（表单<input>为text|field），以及 textarea 和 select 元素;
+            			当用于 select 元素时，change 事件会在选择某个选项时发生。当用于 text field 或 text area 时，该事件会在元素失去焦点时发生
+
+mouseenter():    	只对绑定的元素有效:当进入其元素时触发，而且进入其子元素不会触发；
+mouseleave():    	通常和mouseenter绑定在一起
+mouseover():     	不仅对绑定的元素有效:当进入其元素时触发，而且进入其子元素也会触发；
+mouseout():      	通常和mouseover一起用
+mousemove():     	当鼠标指针在指定的元素中移动时，就会发生 mousemove 事件。比如获取坐标
+
+ready():         	与这个函数等价，当页面DOM以及所有图片……等加载完成后触发，一般用jquery自带的$(function(){});
+error():         
+
+resize():        	当调整浏览器窗口的大小时，发生 resize 事件
+scroll():        	当用户滚动指定的元素时，会发生 scroll 事件
+select():        	当文本被单击左键拖拽选中时触发，比如：选中一段文本，改变选中文本的背景色+文本颜色(可以利用css3的::selection 处理)
+load()：         			当指定的元素（及子元素）已加载时，会发生 load() 事件。该事件适用于任何带有 URL 的元素（比如图像、脚本、框架、内联框架）。
+									根据不同的浏览器（Firefox 和 IE），如果图像已被缓存，则也许不会触发 load 事件
+unload():        	具体来说，当发生以下情况时，会发出 unload 事件：
+	                 .点击某个离开页面的链接
+	                 .在地址栏中键入了新的 URL
+	                 .使用前进或后退按钮
+	                 .关闭浏览器
+	                 .重新加载页面
+submit():        	提交表单
+
+【
+	注意：在使用on("事件",function(event))  event都会以第一个参数传进去，这个event和原生的js是有区别的，因为此event屏蔽了浏览器之间的差异性,
+	而且传进去的event并不等同于原生js的event
+】
+event的属性
+pageX pageY         以文档左上角为参考
+screenX screenY     以屏幕左上角为参考
+preventDefault()    阻止默认的语义动作<a>无法超链接
+stopPropagation()   阻止冒泡
+
+
+
+【***H5特有的触摸事件***】
+
+touchstart    		当手指触摸屏幕时候触发，即使已经有一个手指放在屏幕上也会触发。
+touchmove     		当手指在屏幕上滑动的时候连续地触发。在这个事件发生期间，调用preventDefault()事件可以阻止滚动。
+touchend      		当手指从屏幕上离开的时候触发。
+touchcancel   		当系统停止跟踪触摸的时候触发
+
+--上面的这些事件都会冒泡，也都可以取消。虽然这些触摸事件没有在DOM规范中定义，但是它们却是以兼容DOM的方式实现的。
+所以，每个触摸事件的event对象都提供了在鼠标实践中常见的属性：
+bubbles(起泡事件的类型)、cancelable(是否用 preventDefault() 方法可以取消与事件关联的默认动作)、clientX(返回当事件被触发时，鼠标指针的水平坐标)、clientY(返回当事件触发时，鼠标指针的垂直坐标)、screenX(当某个事件被触发时，鼠标指针的水平坐标)和screenY(返回当某个事件被触发时，鼠标指针的垂直坐标),除了常见的DOM属性，触摸事件还包含下面三个用于跟踪触摸的属性。
+
+touches						表示当前跟踪的触摸操作的touch对象的数组。
+targetTouches			特定于事件目标的Touch对象的数组。
+changeTouches			表示自上次触摸以来发生了什么改变的Touch对象的数组。
+
+--每个Touch对象包含的属性如下。
+
+clientX			触摸目标在视口中的x坐标。
+clientY			触摸目标在视口中的y坐标。
+identifier	标识触摸的唯一ID。
+pageX				触摸目标在页面中的x坐标。
+pageY				触摸目标在页面中的y坐标。
+screenX			触摸目标在屏幕中的x坐标。
+screenY			触摸目标在屏幕中的y坐标。
+target			触目的DOM节点目标
+
+/*------------------------------------第四章：动画-----------------------------------*/
+hide(speed,callback)         使元素变为隐藏的状态(display:none)，若指定speed则在X毫秒内执行动画效果，若不指定，则瞬间完成;callback则是在动画执行完后执行回调函数
+show(speed,callback)         使元素变为显示的状态(display:none)，若指定speed则在X毫秒内执行动画效果，若不指定，则瞬间完成;callback则是在动画执行完后执行回调函数
+toggle(speed,callback)       上面两个方法的整合，功能是：切换hide(),show();
+toggle(布尔表达式)            如果是true——显示，false——隐藏
+
+fadeIn(speed,callback)       					使元素的不透明度变为初始值，而且是渐变，其他参数同上
+fadeOut(speed,callback)      					使元素的不透明度变为0%，而且是渐变，其他参数同上
+fadeTo(speed,opacity,callback)        使元素的不透明度到opacity(0.0~1.0) 其它参数同上
+
+slideDown(speed,callback)    					下拉、使元素显现出来
+slideUp(speed,callback)      					上拉、使元素隐藏起来
+slideToggle(speed,callback)  					切换上拉，下拉
+
+**stop(是否停止整个队列的动画,是否允许当前动画完成)   
+			如果只写stop()默认值是(false,false)，即允许队列中的其他动画执行，不允许当前动画执行完毕(即比如执行一半了，不得不执行第二个队列中的动画)
+			如果是(false,true);那第一个执行一半的动画马上会到动画的结尾状态(突然的)，然后以动画形式执行第二个队列动画
+			如果是(true，false)则是动画“暂停”的效果
+
+**animate(css,time,callback()/函数名)      
+			【注意：此方法只支持有数值的css；不可以改变像颜色的字符串类型】
+			css:json表达式，表示要执行的css的最终结果；time:毫秒/slow/normal/fast这三个字符串(假设调用了多个animate()方法，那么这几个animate是进入动画队列的
+			而如果在一个包装集用fadeIn()等特效，则不会进入动画队列，即是非阻塞的同时执行，所以在做某些特效时，比如一个消失，一个显示，就可能出现无过度效果；
+			其原因就在于他们是几乎同时开始的，所以常用办法就是在第一个动画执行时增加时间，等过了X毫秒后再回调第二个动画)
+	    function aniDiv(){
+	        $("#box").animate({width:300},"slow");//第1个动画队列
+	        $("#box").animate({width:100},"slow",aniDiv);//第2个动画队列
+	      }
+	    aniDiv();
+
+
+queue(name,function)        name:队列名称；function:添加到队列结尾的元素
+dequeue(name)               每次都会执行一个队列中的函数，并且删除队列中的函数，如果想一次就执行所有的队列函数，则可以在函数的末尾加上dequeue(name)从而形成链式反应
+clearQueue(name)            清除所有未执行的队列中的函数
+delay(time,name)            time:毫秒；name:队列名称，其实这个方法不是一定要用在队列中，普通如fadeIn特效也可以用；eg:$("X").delay(1000).fadeIn(500)
+
+
+
+/*-----------------------------第五章：与DOM无关的$函数------------------------------*/
+
+var jq=$.noConfilct();把$符号转变为jq字符
+(function($){…………})(jQuery);在函数内部指向$;
+
+$.trim(字符串)      								删除字符串开头和结尾的空白(空格、换行符、回车、制表符等)  返回修改后的字符串
+$.each(数组|对象,callback)       	遍历传入函数的数组/对象的每一项，并且为每一个调用回调函数；callback(index|属性名字，数组项|属性值)     返回容器对象
+	                                $.each(array,function(index,value)
+	                                {
+	                                   $("ul").append("<li>"+value+"</li>");
+	                                });
+$.grep(array,callback,invert)   	array:数组;callback:若遍历某个数组元素并返回true则次元素被收集，否则不收集(注意：此函数参数顺序和$.each()相反)，
+																	invert:反转，即如果为true，则当回调函数返回false时才会收集数据。返回值：由收集的值返回的数组
+	                                eg:返回那些值大于100的数组元素：$.grep(array,function(value){return value>100})
+	                                
+$.map(array,callback)           	array:数组;callback(value,index):他的返回值将被收集到一个新的数组中，这个新的数组即返回值；
+																	注意：如果返回的值是：null undefined 那么结果不会被收集
+                            			这样出现的问题就是：原始数组和新生成的数组不是一一对应的
+
+$.inArray(value,array)          	返回数组中value值所在array中的位置,若没有则 返回-1
+$.makeArray(object)             	将传入的类似数组的object转换为JavaScript数组
+其实所谓的“类似”数组的对象：{"1":"a","2":"b"} 或者DOM或者String的字符串都是可以的     
+															 eg:	
+														 				<div>First</div>
+                                   	<div>Second</div>
+                                   	<div>Third</div>
+                                   	<div>Fourth</div>
+                                   	<script>
+                                   	// 返回nodelist节点
+                                   	var elems = document.getElementsByTagName( "div" );
+                                   	// 转换为数组
+                                   	var arr = jQuery.makeArray( elems );
+                                   	// 反转数组元素
+                                  	 arr.reverse();
+                                   	$( arr ).appendTo( document.body );
+                                   	</script>输出：Fourth   Third    Second    First
+
+                                   	var obj = { 0:"CodePlayer", 1: "Hello", 2: 18, 3: true };
+                                   	// 类数组对象不是真正的数组
+                                   	w( obj instanceof Array ); // false
+
+                              	 		var arr = $.makeArray( obj );
+                              	 		w( arr instanceof Array ); // true
+                                   	w( arr.join(" ") ); // CodePlayer Hello 18 true
+                                   	w( arr.length ); // 4
+                                   	$.makeArray( "CodePlayer" );
+                               			返回：["CodePlayer"]
+
+
+
+$.unique(array)                 			array：DOM元素的数组，返回DOM数组中不重复元素组成的数组
+$.merge(array1,array2)          			合并数组：把2数组加到1数组上(重复的元素也可以)，把改变的1数组当做返回值返回
+                                			var array1=[1,2,3];var array2=[3,4,5];$.merge(array1,array2);->[1,2,3,3,4,5]
+$.extend(deep,target,source1……)       deep:深复制还是浅复制，false/省略为浅复制，true是深复制；target：目标对象；source：原对象
+									                                        函数的意义是：把source1……添加到目标对象，而且如果是相同的属性则覆盖前面的
+									                                        比如：target={a:1,b:2,c:3};source={c:4,d:5,e:6};source2={e:7,f:8;g:9}  $.extend(target,source1,source2)
+									                                        结果：{a:1,b:2,c:4,d:5,e:7,f:8,g:9}因此可以看到：后面的对象拥有更高的优先级
+
+
+
+/*-------------------------------JSON和String字符串之间的转换-------------------------------*/
+
+$.param(params,[traditional])     params:数组|jQuery|对象，返回值：格式化后的查询字符串
+                                  $.param({a:1,b:2})   生成'a=1&b=2'这个字符串（其实就是提交参数时的url中的一些参数eg:http://dkdkdkdk?a=1&b=2）
+                                  
+$.parseJSON(string_json)或者JSON.parse(string_json)  	json:是将“严格按照JSON格式”（即：属性名必须是以双引号）的字符串转换为JSON对象
+                                                    	eg：JSON.parse('{"a":"1","b":"2"}');（外边必须是单引号，内部json格式是双引号，必须严格）
+                                                        	JSON.parse('{"a":1,"b":2}');这么写也可以！只要保证外边的key是有双引号即可
+                                                       		Object {a: "1", b: "2"}
+                                                       		
+JSON.stringify(json_obj)               								将JSON转为字符串
+
+$.isArray(o)                      如果o是JavaScript数组，则返回true，就算是类似数组（比如jq包装集）就会返回false
+$.isEmptyObject(o)                如果o对象不包含任何属性，则返回true，如果o有从继承过来的属性则返回false
+$.isFunction(o)                   如果o是JavaScript函数类型则返回true；但是在IE中alert(),confirm()那些弹窗是无法被当做函数的
+$.contains(dom1,dom2)             判断dom2是否包含在dom1中，若是：返回true，反之false
+                                  eg:  $.c？ontains( document.documentElement, document.body ); // true
+                                       $.contains( document.body, document.documentElement ); // false
+$.data(用于存储/取出数据的dom元素,name数据名称,value设置数据值，如果省略则是取出数据值)      存储或者获取数据值
+$.removeData(dom元素，name数据名称)     删除在dom上的数据，无返回值
+$.getScript(url,[callback])       url:脚本的url,callback()函数是在js文件请求到后，并且运行完毕后执行(请求后的js默认会运行一遍)
+
+
+
+扩展jquery：
+(function($){
+        必须写在这个里面！！！
+        必须写在这个里面！！！
+        必须写在这个里面！！！
+})(jQuery);
+}
+---类级别:即不是为了操作DOM对象，如$.ajax(……)---或者StringObj.slice();
+
+        <方式1-参数只有一个对象，扩展了jQuery本身>
+        $.extend(
+        {
+            add:function(a,b){return a+b;} ,
+            minus:function(a,b){return a-b;
+        }
+        });
+
+        <方式2-在某个prototype原型类上增加函数，扩展某个已经存在的类，比如String>
+        $.extend(String.prototype|target,{functionName1:functionContent1,functionName2:functionContent2});target会被对象123……N覆盖
+
+        <方式3-直接$添加一个方法>
+        $.say=function(data){alert("这里就是传入的数据"+data);}
+
+---DOM级别；如#("包装器").方法---
+jQuery源码：
+jQuery.fn = jQuery.prototype = {
+
+　　　init: function( selector, context ) {.....};
+};
+所以：$.fn.extend(obj)就是扩展了原型
+
+$.fn.extend(
+{
+    check:function()
+    {
+            return this.each(
+            {
+               this.checked=true;
+            });
+    },
+
+    uncheck:function()
+    {
+            return this.each(
+            {
+               this.checked=false;
+            });
+    }
+});
+
+或者
+$.fn.函数名=function(){…………}
+
+
+
+/*-----------------------------第八章：ajax------------------------------*/
+url?callback=?这种形式要在jQuery>=1.2版本才可以用
+$(选择器).load(url,parameters,callback(data))       url:字符串，服务器资源的url
+			                                              parameters:(字符串|对象|数组)；指定要作为请求参数的数据，若为对象()/数组：则采用post请求，若为字符串：则为get请求方式
+			                                              callback:传入此函数的有：响应的文本，状态字符串（通常是success），以及XHR实例
+			                                              $("选择器").load("url");把请求的数据直接注入到选择器中
+			                                              
+$.get(url,parameters,callback(data),type)     发起get请求
+                                              url:(字符串)服务器资源的URL
+                                              parameters:(字符串|对象|数组)，作为请求参数传递的任何数据；对象（其属性被正确的序列化为正确的编码）；或者由对象组成的数组
+                                              callback:第一个参数：根据type类型返回的数据data；第二个参数：文本信息；第三个参数包含XHR实例的引用
+                                              type:指定如何解析响应的主体：html，text，xml，json，script或者jsonp
+                                          		注意：和$(选择器).load不同，它不会直接插入指定DOM位置的数据，而是需要手动处理
+                                              eg:$.get("http://xxx.abc.com/s/get.jsp",{"name":"lihonglei"},function(data,textMessage,XMLHttpRequestObj){……},"jsonp")
+
+$.post(url,parameters,callback(data),type)  				参数同上，但是使用post获取
+$.getJSON(url,parameters,successCallback(data))    	参数同上，但是这个方法是通过get方式请求数据
+
+demo:
+$.getJSON("http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&jsoncallback=?", function(data) {
+    $.each(data.items, function(i, item) {
+        $("<img/>").attr("src", item.media.m).appendTo("#images");
+        if (i == 3)
+            return false;
+    });
+});
+
+$.getJSON(url,{"name":"lihonglei","age":"30"},回调函数(data));
+$.ajax()
+					demo:
+					$.ajax({
+		              url: '/Resources/GetList.ashx',
+		              type: "post",          	//post或者get请求方式，如果不写默认是get
+		              dataType: "jsonp",      //用来识别返回的类型;xml,html,json,jsonp,script,text
+		              data: dataurl,         	//发送过去的数据（字符串|数组|对象）
+		              timeout: 1000           //毫秒值，若超时则调用error函数，如果有写的话
+		              jsonp: "callback",     	//传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(一般默认为:callback)
+		              /*
+		               	类型：String在一个 jsonp 请求中重写回调函数的名字。这个值用来替代在 "callback=?" 这种 GET 或 POST 请求中 URL 参数里的 "callback" 部分
+		              	比如 {jsonp:'onJsonPLoad'} 会导致将 "onJsonPLoad=?" 传给服务器。
+		              */
+		              jsonpCallback:"callBackFunction"
+		              success: function (data)
+		              {
+		                  if (data != "") {
+		                      $("#pager").pager({ pagenumber: pagenumber, pagecount: data.split("$$")[1], buttonClickCallback: PageClick });
+		                      $("#anhtml").html(data.split("$$")[0]);
+		
+		                  }
+		              }
+		              error:  function(){……}
+		          });
+参数详解：
+url:         	要求为String类型的参数，（默认为当前页地址）发送请求的地址。
+type:        	要求为String类型的参数，请求方式（post或get）默认为get。注意其他http请求方法，例如put和delete也可以使用，但仅部分浏览器支持。
+timeout:     	要求为Number类型的参数，设置请求超时时间（毫秒）。此设置将覆盖$.ajaxSetup()方法的全局设置。
+async：      			要求为Boolean类型的参数，默认设置为true，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为false。注意，同步请求将锁住浏览器，用户其他操作必须等待请求完成才可以执行。
+cache：      			要求为Boolean类型的参数，默认为true（当dataType为script时，默认为false）。设置为false将不会从浏览器缓存中加载请求信息。
+data:        	要求为Object或String类型的参数，发送到服务器的数据。如果已经不是字符串，将自动转换为字符串格式。get请求中将附加在url后。防止这种自动转换，可以查看processData选项。对象必须为key/value格
+             	式，例如{foo1:"bar1",foo2:"bar2"}转换为&foo1=bar1&foo2=bar2。如果是数组，JQuery将自动为不同值对应同一个名称。例如{foo:["bar1","bar2"]}转换为&foo=bar1&foo=bar2。
+dataType:    	要求为String类型的参数，预期服务器返回的数据类型。如果不指定，JQuery将自动根据http包mime信息返回responseXML或responseText，并作为回调函数参数传递。可用的类型如下：
+             	xml：返回XML文档，可用JQuery处理。
+             	html：返回纯文本HTML信息；包含的script标签会在插入DOM时执行。
+             	script：返回纯文本JavaScript代码。不会自动缓存结果。除非设置了cache参数。注意在远程请求时（不在同一个域下），所有post请求都将转为get请求。
+             	json：返回JSON数据。
+             	jsonp：JSONP格式。使用SONP形式调用函数时，例如myurl?callback=?，JQuery将自动替换后一个“?”为正确的函数名，以执行回调函数。
+             	text：返回纯文本字符串。
+beforeSend：  	要求为Function类型的参数，发送请求前可以修改XMLHttpRequest对象的函数，例如添加自定义HTTP头。在beforeSend中如果返回false可以取消本次ajax请求。XMLHttpRequest对象是惟一的参数。
+	            function(XMLHttpRequest){
+	               this;   //调用本次ajax请求时传递的options参数
+	            }
+*complete：    	要求为Function类型的参数，请求完成后调用的回调函数（请求成功或失败时均调用）。
+         			参数：XMLHttpRequest对象和一个描述成功请求类型的字符串。
+              complete : function(XMLHttpRequest,status){ //请求完成后最终执行参数
+             　　　　if(status=='timeout'){//超时,status还有success,error等值的情况
+              　　　　　 ajaxTimeOut.abort(); //取消请求
+             　　　　　  alert("超时");
+             　　　　}
+success：         	要求为Function类型的参数，请求成功后调用的回调函数，有两个参数。
+                 (1)由服务器返回，并根据dataType参数进行处理后的数据。
+                 (2)描述状态的字符串。
+                 function(data, textStatus){
+                    //data可能是xmlDoc、jsonObj、html、text等等
+                    this;  //调用本次ajax请求时传递的options参数
+error：            	要求为Function类型的参数，请求失败时被调用的函数。该函数有3个参数，即XMLHttpRequest对象、错误信息、捕获的错误对象(可选)。
+                   ajax事件函数如下：
+                   function(XMLHttpRequest, textStatus, errorThrown){
+                      //通常情况下textStatus和errorThrown只有其中一个包含信息
+                      this;   //调用本次ajax请求时传递的options参数
+                   }
+contentType：     	要求为String类型的参数，当发送信息至服务器时，内容编码类型默认为"application/x-www-form-urlencoded"。该默认值适合大多数应用场合。
+dataFilter：      	要求为Function类型的参数，给Ajax返回的原始数据进行预处理的函数。
+			                    提供data和type两个参数。data是Ajax返回的原始数据，type是调用jQuery.ajax时提供的
+			                    dataType参数。函数返回的值将由jQuery进一步处理。
+			                    function(data, type){
+			                        //返回处理后的数据
+			                        return data;
+			                    }
+global：         		要求为Boolean类型的参数，默认为true。表示是否触发全局ajax事件。设置为false将不会触发全局ajax事件，ajaxStart或ajaxStop可用于控制各种ajax事件。
+ifModified：     	要求为Boolean类型的参数，默认为false。仅在服务器数据改变时获取新数据。服务器数据改变判断的依据是Last-Modified头信息。默认值是false，即忽略头信息。
+jsonp：          			要求为String类型的参数，在一个jsonp请求中重写回调函数的名字。
+            		该值用来替代在"callback=?"这种GET或POST请求中URL参数里的"callback"部分，例如{jsonp:'onJsonPLoad'}会导致将"onJsonPLoad=?"传给服务器。
+username：       		要求为String类型的参数，用于响应HTTP访问认证请求的用户名。
+password：       		要求为String类型的参数，用于响应HTTP访问认证请求的密码。
+processData：    	要求为Boolean类型的参数，默认为true。默认情况下，发送的数据将被转换为对象（从技术角度来讲并非字符串）以配合默认内容类型"application/x-www-form-urlencoded"。如果要发送DOM
+            		树信息或者其他不希望转换的信息，请设置为false。
+scriptCharset：  要求为String类型的参数，只有当请求时dataType为"jsonp"或者"script"，并且type是GET时才会用于强制修改字符集(charset)。通常在本地和远程的内容编码不同时使用。
+
+demo：
+$(function(){
+    $('#send').click(function(){
+         $.ajax({
+             type: "GET",
+             url: "test.json",
+             data: {username:$("#username").val(), content:$("#content").val()},
+             dataType: "json",
+             success: function(data){
+                         $('#resText').empty();   //清空resText里面的所有内容
+                         var html = '';
+                         $.each(data, function(commentIndex, comment){
+                               html += '<div class="comment"><h6>' + comment['username']
+                                         + ':</h6><p class="para"' + comment['content']
+                                         + '</p></div>';
+                         });
+                         $('#resText').html(html);
+                      }
+         });
+    });
+});
+
+如果是chrome还可以数设置：context.Response.AddHeader("Access-Control-Allow-Origin", "*");来达到跨域！
